@@ -4,50 +4,72 @@ using System.Linq;
 using System.Threading.Tasks;
 using DictionaryGame.Models;
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json.Linq;
+using System.Text.Json;
+using System.Net.Http;
+using Microsoft.AspNetCore.Http;
 
-namespace DictionaryGame.Controllers
+namespace DictionaryGame
 {
-    [Route("api/[controller]")]
+    [Route("[controller]")]
     [ApiController]
     public class GameController : ControllerBase
     {
         // GET: api/<GameController>
+        //[HttpGet]
+        //public IEnumerable<string> GetPlayers()
+        //{
+        //    return new string[] { "value1", "value2" };
+        //}
+
+        // GET api/<GameController>/GetPlayers/5
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [Route("GetPlayers/{id}")]
         [HttpGet]
-        public IEnumerable<string> Get()
+        public IActionResult GetPlayers(int id)
         {
-            return new string[] { "value1", "value2" };
+            Game game;
+            bool success;
+
+            lock(Program.ActiveGames)
+            {
+                success = Program.ActiveGames.TryGetValue(id, out game);
+            }
+
+            if (!success) return NotFound("Game does not exist.");
+
+            return new JsonResult(game);
         }
 
-        // GET api/<GameController>/5
-        [HttpGet("{id}")]
-        public string Get(int id)
+        public class GameReqArgs
         {
-            return "value";
+            public string Name { get; set; }
+            public string Password { get; set; }
         }
 
-        // POST api/<GameController>
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status409Conflict)]
+        [Route("NewGame")]
         [HttpPost]
-        public void NewGame([FromBody] JObject data)
+        public IActionResult NewGame([FromBody] GameReqArgs data)
         {
-            string name = data["name"].ToString();
-            string pwd = data["password"].ToString();
+            if (data.Name.Length > 50) return BadRequest("Name too long");
+            if (data.Name.Length < 1) return BadRequest("Name is required");
+            if (data.Password.Length > 50) return BadRequest("Password too long");
+            if (data.Password.Length < 4) return BadRequest("Password too short");
 
-
-            if (name.Length > 50) throw new ArgumentException("Name too long");
-            if (pwd.Length > 50) throw new ArgumentException("Password too long");
+            int id;
 
             lock (Program.ActiveGames)
             {
 
-                if (!Program.ActiveGames.FirstOrDefault((entry) => entry.Value.Name == name).Equals(default))
+                if (!Program.ActiveGames.FirstOrDefault((entry) => entry.Value.Name == data.Name).Equals(default(KeyValuePair<int, Game>)))
                 {
                     // TODO: return a nice error to the user asking for a unique name!
-                    throw new InvalidOperationException("Name already exists");
+                    return Conflict("A game already exists by that name");
                 }
 
-                var game = new Game(name, pwd);
-                int id;
+                var game = new Game(data.Name, data.Password);
                 var rnd = new Random();
                 do {
                     id = rnd.Next();
@@ -55,41 +77,47 @@ namespace DictionaryGame.Controllers
 
                 Program.ActiveGames.Add(id, game);
             }
+
+            return Ok(id);
         }
 
-        // POST api/<GameController>
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [Route("JoinGame/{gameName}")]
         [HttpPost]
-        public void JoinGame([FromBody] JObject data)
+        public IActionResult JoinGame(string gameName, [FromBody] GameReqArgs data)
         {
-            string name = data["name"].ToString();
-            string hostName = data["hostName"].ToString();
-            string pwd = data["password"].ToString();
-
-
-            if (hostName.Length > 50) throw new ArgumentException("Host name too long");
-            if (name.Length > 50) throw new ArgumentException("Name too long");
-            if (pwd.Length > 50) throw new ArgumentException("Password too long");
+            Game game;
+            KeyValuePair<int, Game> gameEntry;
 
             lock (Program.ActiveGames)
             {
-                var gameEntry = Program.ActiveGames.FirstOrDefault((entry) => entry.Value.Name == hostName);
+                gameEntry = Program.ActiveGames.FirstOrDefault((entry) => entry.Value.Name == gameName);
 
-                if (gameEntry.Equals(default))
+                if (gameEntry.Equals(default(KeyValuePair<int, Game>)))
                 {
-                    // TODO: return a nice error to the user!
-                    throw new InvalidOperationException("Game does not exist");
+                    return NotFound("Game does not exist");
                 }
 
-                Game game = gameEntry.Value;
-
-                if (game.Password != pwd)
-                {
-                    // TODO: return a nice error.
-                    throw new InvalidOperationException("Incorrect password");
-                }
-
-                game.Players.Add(new Player(name));
+                game = gameEntry.Value;
             }
+
+            if (data.Name.Length > 50) return BadRequest("Name too long");
+            if (data.Name.Length < 1) return BadRequest("Name is required");
+            if (data.Password.Length > 50) return BadRequest("Password too long");
+            if (data.Password.Length < 4) return BadRequest("Password too short");
+
+            if (game.Password != data.Password)
+            {
+                // TODO: return a nice error.
+                return Forbid("Incorrect password");
+            }
+
+            game.Players.Add(new Player(data.Name));
+
+            return Ok(gameEntry.Key);
         }
 
         [HttpDelete("{id}")]
