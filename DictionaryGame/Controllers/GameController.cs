@@ -10,7 +10,7 @@ using Microsoft.AspNetCore.Http;
 
 namespace DictionaryGame
 {
-    [Route("[controller]")]
+    [Route("GameApi")]
     [ApiController]
     public class GameController : ControllerBase
     {

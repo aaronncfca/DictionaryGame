@@ -13,6 +13,7 @@ namespace DictionaryGame.Models
             Points = 0;
         }
 
+
         public string Name { get; private set; }
 
         public int Points { get; set; }

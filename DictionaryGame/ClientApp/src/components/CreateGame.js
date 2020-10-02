@@ -38,7 +38,7 @@ export class CreateGame extends Component {
 
         const body = { Name: this.state.usrname, Password: this.state.password };
 
-        fetch("Game/NewGame",
+        fetch("GameApi/NewGame",
             {
                 method: "post",
                 headers: { "Content-type": "application/json" },
@@ -49,17 +49,19 @@ export class CreateGame extends Component {
                     if (!response.ok) {
                         alert("Error creating game: " + text);
                     } else {
-                        alert("Response: " + text);
-                        // The NewGame api returns the int id.
-                        const id = Number.parseInt(text);
+                        const gameId = Number.parseInt(text);
+
+                        this.props.gameCreated({ id: gameId, name: this.state.usrname });
+
+                        // Go to the game window!
+                        window.open("/Game/" + text);
                     }
                 });
             }).catch(e => {
                 alert("Error sending request.");
             });
 
-        alert('Form submitted! username: ' + this.state.usrname + '; password: ' + this.state.password);
-
+        // Keep window from auto-reloading. TODO: is this necessary?
         event.preventDefault();
         event.stopPropagation();
     }
