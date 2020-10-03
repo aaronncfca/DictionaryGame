@@ -1,97 +1,80 @@
-import React, { Component } from 'react';
+import React, { useState } from 'react';
 
-export class CreateGame extends Component {
-    static displayName = CreateGame.name;
 
-    constructor(props) {
-        super(props);
-        this.state = {
-            usrname: "",
-            password: "",
-            validated: false
-        };
+export function CreateGame(props) {
+    const [usrname, setUsrname] = useState('');
+    const [password, setPassword] = useState('');
+    const [validated, setValidated] = useState(false);
 
-        this.handleInputChange = this.handleInputChange.bind(this);
-        this.handleFormSubmitted = this.handleFormSubmitted.bind(this);
-    }
 
-    static renderForecastsTable(forecasts) {
-    }
-
-    handleInputChange(event) {
-        const value = event.target.value;
-        const name = event.target.name;
-
-        this.setState({ [name]: value });
-    }
-
-    handleFormSubmitted(event) {
+    async function handleFormSubmitted(event) {
         const form = event.target;
 
-        this.setState({ validated: true });
+        // We don't need the form taking over control and reloading or anything like that.
+        // Note: since this is async, it's important we call these before any awaits.
+        event.preventDefault();
+        event.stopPropagation();
+
+        setValidated(true);
 
         if (form.checkValidity() === false) {
-            event.preventDefault();
-            event.stopPropagation();
             return;
         }
 
-        const body = { Name: this.state.usrname, Password: this.state.password };
+        const body = { Name: usrname, Password: password };
 
-        fetch("GameApi/NewGame",
-            {
+        try {
+            const response = await fetch("GameApi/NewGame", {
                 method: "post",
                 headers: { "Content-type": "application/json" },
                 body: JSON.stringify(body)
-            })
-            .then(response => {
-                response.text().then(text => {
-                    if (!response.ok) {
-                        alert("Error creating game: " + text);
-                    } else {
-                        const gameId = Number.parseInt(text);
-
-                        this.props.gameCreated({ id: gameId, name: this.state.usrname });
-
-                        // Go to the game window!
-                        window.open("/Game/" + text);
-                    }
-                });
-            }).catch(e => {
-                alert("Error sending request.");
             });
 
-        // Keep window from auto-reloading. TODO: is this necessary?
-        event.preventDefault();
-        event.stopPropagation();
+            const text = await response.text();
+
+            if (!response.ok) {
+                alert("Error creating game: " + text);
+            } else {
+                const gameId = Number.parseInt(text);
+
+                // TODO: not effective. Use context?
+                props.gameCreated({ id: gameId, name: usrname });
+
+                // Go to the game window!
+                window.location = "/game/" + gameId;
+            }
+
+        } catch (e) {
+            alert("Error sending request: " + e);
+        }
     }
 
-    render() {
-        return (
-            <div>
-                <h1>Create Game</h1>
-                <form noValidate class={this.state.validated ? "was-validated" : ""} onSubmit={this.handleFormSubmitted}>
-                    <div class="form-group">
-                        <label for="cg-usrname">
-                            You're user name (used to join this game):
-                        </label>
-                        <input class="form-control" type="text" id="cg-usrname" name="usrname" value={this.state.usrname} pattern="[a-zA-Z0-9]{4,49}"
-                            onChange={this.handleInputChange} required />
-                        <div class="invalid-feedback">
-                            Username must be 4 to 49 characters, letters and numbers only.
-                        </div>
+
+    return (
+        <div>
+            <h1>Create Game</h1>
+            <form noValidate class={validated ? "was-validated" : ""} onSubmit={handleFormSubmitted}>
+                <div class="form-group">
+                    <label for="cg-usrname">
+                        You're user name (used to join this game):
+                    </label>
+                    <input class="form-control" type="text" id="cg-usrname" name="usrname" value={usrname} pattern="[a-zA-Z0-9]{4,49}"
+                        onChange={(e) => setUsrname(e.target.value)} required />
+                    <div class="invalid-feedback">
+                        Username must be 4 to 49 characters, letters and numbers only.
                     </div>
-                    <div class="form-group">
-                        <label for="cg-password">Pasword for this game:</label>
-                        <input class="form-control" type="text" id="cg-password" name="password" value={this.state.password} pattern=".{4,49}"
-                            onChange={this.handleInputChange} required />
-                        <div class="invalid-feedback">
-                            Password must be 4 to 49 characters.
-                        </div>
+                </div>
+                <div class="form-group">
+                    <label for="cg-password">Pasword for this game:</label>
+                    <input class="form-control" type="text" id="cg-password" name="password" value={password} pattern=".{4,49}"
+                        onChange={(e) => setPassword(e.target.value)} required />
+                    <div class="invalid-feedback">
+                        Password must be 4 to 49 characters.
                     </div>
-                    <button class="btn btn-primary" type="submit">Create Game</button>
-                </form>
-            </div>
-        );
-    }
+                </div>
+                <button class="btn btn-primary" type="submit">Create Game</button>
+            </form>
+        </div>
+    );
 }
+
