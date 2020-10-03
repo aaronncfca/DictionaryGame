@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
+import { useHistory } from 'react-router-dom'
 
 
 export function CreateGame(props) {
     const [usrname, setUsrname] = useState('');
     const [password, setPassword] = useState('');
     const [validated, setValidated] = useState(false);
+    const history = useHistory();
 
 
     async function handleFormSubmitted(event) {
@@ -37,11 +39,11 @@ export function CreateGame(props) {
             } else {
                 const gameId = Number.parseInt(text);
 
-                // TODO: not effective. Use context?
+                // TODO: lost if the window reloads. Use context?
                 props.gameCreated({ id: gameId, name: usrname });
 
                 // Go to the game window!
-                window.location = "/game/" + gameId;
+                history.push("/game/" + gameId);
             }
 
         } catch (e) {
