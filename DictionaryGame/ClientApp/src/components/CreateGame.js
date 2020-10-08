@@ -40,9 +40,6 @@ export function CreateGame(props) {
             } else {
                 const gameId = Number.parseInt(text);
 
-                // TODO: lost if the window reloads. Use context?
-                props.gameCreated({ id: gameId, name: usrname });
-
                 // Go to the game window!
                 history.push("/game/" + gameId);
             }
@@ -68,21 +65,21 @@ export function CreateGame(props) {
                     </div>
                 </div>
                 <div className="form-group">
-                    <label htmlFor="cg-usrname">
-                        Your user name:
-                    </label>
-                    <input className="form-control" type="text" id="cg-usrname" name="usrname" value={usrname} pattern="[a-zA-Z0-9]{4,49}"
-                        onChange={(e) => setUsrname(e.target.value)} required />
-                    <div className="invalid-feedback">
-                        Username must be 4 to 49 characters, letters and numbers only.
-                    </div>
-                </div>
-                <div className="form-group">
                     <label htmlFor="cg-password">Pasword for this game:</label>
                     <input className="form-control" type="text" id="cg-password" name="password" value={password} pattern=".{4,49}"
                         onChange={(e) => setPassword(e.target.value)} required />
                     <div className="invalid-feedback">
                         Password must be 4 to 49 characters.
+                    </div>
+                </div>
+                <div className="form-group">
+                    <label htmlFor="cg-usrname">
+                        Your personal user name:
+                    </label>
+                    <input className="form-control" type="text" id="cg-usrname" name="usrname" value={usrname} pattern="[a-zA-Z0-9]{4,49}"
+                        onChange={(e) => setUsrname(e.target.value)} required />
+                    <div className="invalid-feedback">
+                        Username must be 4 to 49 characters, letters and numbers only.
                     </div>
                 </div>
                 <button className="btn btn-primary" type="submit">Create Game</button>
