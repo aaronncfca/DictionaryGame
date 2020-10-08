@@ -1,79 +1,53 @@
-﻿import React, { Component } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 
-export class Game extends Component {
-    static displayName = Game.name;
+export function Game(props) {
+    const gameId = props.match.params.id;
 
-    constructor(props) {
-        super(props);
+    const [isLoading, setIsLoading] = useState(true);
+    const [gameName, setGameName] = useState('');
+    const [players, setPlayers] = useState([]);
 
-        this.gameId = props.match.params.id;
+    useEffect(() => {
+        (async function f() {
+            const data = await fetch('/GameApi/Game/' + gameId);
+            const game = await data.json();
 
-        this.state = {
-        };
+            setPlayers(game.players);
+            setGameName(game.name);
+            setIsLoading(false);
+        })();
+    });
 
-        // TODO: get game info.
 
-    }
-
-    componentDidMount() {
-        // TODO
-    }
-
-    static renderForecastsTable(forecasts) {
-    }
-
-    handleInputChange(event) {
-        const value = event.target.value;
-        const name = event.target.name;
-
-        this.setState({ [name]: value });
-    }
-
-    handleFormSubmitted(event) {
-        const form = event.target;
-
-        this.setState({ validated: true });
-
-        if (form.checkValidity() === false) {
-            event.preventDefault();
-            event.stopPropagation();
-            return;
-        }
-
-        const body = { Name: this.state.usrname, Password: this.state.password };
-
-        //fetch("Game/NewGame",
-        //    {
-        //        method: "post",
-        //        headers: { "Content-type": "application/json" },
-        //        body: JSON.stringify(body)
-        //    })
-        //    .then(response => {
-        //        response.text().then(text => {
-        //            if (!response.ok) {
-        //                alert("Error creating game: " + text);
-        //            } else {
-        //                alert("Response: " + text);
-        //                // The NewGame api returns the int id.
-        //                const id = Number.parseInt(text);
-        //            }
-        //        });
-        //    }).catch(e => {
-        //        alert("Error sending request.");
-        //    });
-
-        alert('Form submitted!');
-
-        event.preventDefault();
-        event.stopPropagation();
-    }
-
-    render() {
-        return (
-            <div>
-                <h1>Welcome to the Dictionary Game!</h1>
-                <p>You are playing the game named {this.props.name}, id {this.gameId}.</p>
-            </div>
-        );
-    }
+    return (
+        <div>
+            <h1>Welcome to the Dictionary Game!</h1>
+            {isLoading ?
+                <div class="d-flex justify-content-center">
+                    <div class="spinner-border" role="status">
+                        <span class="sr-only">Loading...</span>
+                    </div>
+                </div>
+                :
+                <div>
+                    <h4>Game: {gameName}</h4>
+                    <div className="container">
+                        <div className="row">
+                            <div className="col">
+                                <h3>Players</h3>
+                                <ul>
+                                    {players.forEach((player) =>
+                                        <li>{player.name} ({player.points} points)</li>
+                                    )}
+                                </ul>
+                            </div>
+                            <div className="col">
+                                <h3>Game (TODO)</h3>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    );
 }

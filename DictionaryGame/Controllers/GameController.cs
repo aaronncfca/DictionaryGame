@@ -23,9 +23,9 @@ namespace DictionaryGame
 
         // GET api/<GameController>/GetPlayers/5
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [Route("GetPlayers/{id}")]
+        [Route("Game/{id}")]
         [HttpGet]
-        public IActionResult GetPlayers(int id)
+        public IActionResult GetGame(int id)
         {
             Game game;
             bool success;

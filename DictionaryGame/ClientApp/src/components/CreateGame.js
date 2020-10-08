@@ -13,7 +13,7 @@ export function CreateGame(props) {
         const form = event.target;
 
         // We don't need the form taking over control and reloading or anything like that.
-        // Note: since this is async, it's important we call these before any awaits.
+        // Note: since this function is async, it's important we call these before any awaits.
         event.preventDefault();
         event.stopPropagation();
 
@@ -56,21 +56,21 @@ export function CreateGame(props) {
         <div>
             <h1>Create Game</h1>
             <form noValidate class={validated ? "was-validated" : ""} onSubmit={handleFormSubmitted}>
-                <div class="form-group">
-                    <label for="cg-usrname">
+                <div className="form-group">
+                    <label htmlFor="cg-usrname">
                         You're user name (used to join this game):
                     </label>
-                    <input class="form-control" type="text" id="cg-usrname" name="usrname" value={usrname} pattern="[a-zA-Z0-9]{4,49}"
+                    <input className="form-control" type="text" id="cg-usrname" name="usrname" value={usrname} pattern="[a-zA-Z0-9]{4,49}"
                         onChange={(e) => setUsrname(e.target.value)} required />
-                    <div class="invalid-feedback">
+                    <div className="invalid-feedback">
                         Username must be 4 to 49 characters, letters and numbers only.
                     </div>
                 </div>
                 <div class="form-group">
-                    <label for="cg-password">Pasword for this game:</label>
-                    <input class="form-control" type="text" id="cg-password" name="password" value={password} pattern=".{4,49}"
+                    <label htmlFor="cg-password">Pasword for this game:</label>
+                    <input className="form-control" type="text" id="cg-password" name="password" value={password} pattern=".{4,49}"
                         onChange={(e) => setPassword(e.target.value)} required />
-                    <div class="invalid-feedback">
+                    <div className="invalid-feedback">
                         Password must be 4 to 49 characters.
                     </div>
                 </div>

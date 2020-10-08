@@ -11,6 +11,7 @@ namespace DictionaryGame.Models
         {
             Name = name;
             Password = pwd;
+            Players = new List<Player>();
         }
 
         public string Name { get; private set; }
