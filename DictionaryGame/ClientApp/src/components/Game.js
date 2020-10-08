@@ -16,16 +16,16 @@ export function Game(props) {
             setGameName(game.name);
             setIsLoading(false);
         })();
-    });
+    }, []);
 
 
     return (
         <div>
             <h1>Welcome to the Dictionary Game!</h1>
             {isLoading ?
-                <div class="d-flex justify-content-center">
-                    <div class="spinner-border" role="status">
-                        <span class="sr-only">Loading...</span>
+                <div className="d-flex justify-content-center">
+                    <div className="spinner-border" role="status">
+                        <span className="sr-only">Loading...</span>
                     </div>
                 </div>
                 :
@@ -36,9 +36,9 @@ export function Game(props) {
                             <div className="col">
                                 <h3>Players</h3>
                                 <ul>
-                                    {players.forEach((player) =>
-                                        <li>{player.name} ({player.points} points)</li>
-                                    )}
+                                    {players.map((player) => (
+                                        <li key={player.name}>{player.name} ({player.points} points)</li>
+                                    ))}
                                 </ul>
                             </div>
                             <div className="col">

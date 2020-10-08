@@ -3,6 +3,7 @@ import { useHistory } from 'react-router-dom'
 
 
 export function CreateGame(props) {
+    const [gameName, setGameName] = useState('');
     const [usrname, setUsrname] = useState('');
     const [password, setPassword] = useState('');
     const [validated, setValidated] = useState(false);
@@ -23,7 +24,7 @@ export function CreateGame(props) {
             return;
         }
 
-        const body = { Name: usrname, Password: password };
+        const body = { Name: gameName, Username: usrname, Password: password };
 
         try {
             const response = await fetch("GameApi/NewGame", {
@@ -55,10 +56,20 @@ export function CreateGame(props) {
     return (
         <div>
             <h1>Create Game</h1>
-            <form noValidate class={validated ? "was-validated" : ""} onSubmit={handleFormSubmitted}>
+            <form noValidate className={validated ? "was-validated" : ""} onSubmit={handleFormSubmitted}>
                 <div className="form-group">
                     <label htmlFor="cg-usrname">
-                        You're user name (used to join this game):
+                        The game name:
+                    </label>
+                    <input className="form-control" type="text" id="cg-usrname" name="usrname" value={gameName} pattern="[a-zA-Z0-9]{4,49}"
+                        onChange={(e) => setGameName(e.target.value)} required />
+                    <div className="invalid-feedback">
+                        Username must be 4 to 49 characters, letters and numbers only.
+                    </div>
+                </div>
+                <div className="form-group">
+                    <label htmlFor="cg-usrname">
+                        Your user name:
                     </label>
                     <input className="form-control" type="text" id="cg-usrname" name="usrname" value={usrname} pattern="[a-zA-Z0-9]{4,49}"
                         onChange={(e) => setUsrname(e.target.value)} required />
@@ -66,7 +77,7 @@ export function CreateGame(props) {
                         Username must be 4 to 49 characters, letters and numbers only.
                     </div>
                 </div>
-                <div class="form-group">
+                <div className="form-group">
                     <label htmlFor="cg-password">Pasword for this game:</label>
                     <input className="form-control" type="text" id="cg-password" name="password" value={password} pattern=".{4,49}"
                         onChange={(e) => setPassword(e.target.value)} required />
@@ -74,7 +85,7 @@ export function CreateGame(props) {
                         Password must be 4 to 49 characters.
                     </div>
                 </div>
-                <button class="btn btn-primary" type="submit">Create Game</button>
+                <button className="btn btn-primary" type="submit">Create Game</button>
             </form>
         </div>
     );
