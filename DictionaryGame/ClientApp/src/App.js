@@ -10,19 +10,15 @@ import { JoinGame } from './components/JoinGame'
 
 import './custom.css'
 
-export default class App extends Component {
-    static displayName = App.name;
-
-    render() {
-        return (
-            <Layout>
-                <Route exact path='/' component={Home} />
-                <Route path='/counter' component={Counter} />
-                <Route path='/fetch-data' component={FetchData} />
-                <Route path='/create-game' component={CreateGame} />
-                <Route path='/join-game' component={JoinGame} />
-                <Route path='/game/:id' component={Game} />
-            </Layout>
-        );
-    }
+export default function App(props) {
+    return (
+        <Layout>
+            <Route exact path='/' component={Home} />
+            <Route path='/counter' component={Counter} />
+            <Route path='/fetch-data' component={FetchData} />
+            <Route path='/create-game' component={CreateGame} />
+            <Route path='/join-game' component={JoinGame} />
+            <Route path='/game/:id' component={Game} />
+        </Layout>
+    );
 }

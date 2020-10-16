@@ -77,7 +77,6 @@ namespace DictionaryGame
 
                 if (!Program.ActiveGames.FirstOrDefault((entry) => entry.Value.Name == data.Name).Equals(default(KeyValuePair<int, Game>)))
                 {
-                    // TODO: return a nice error to the user asking for a unique name!
                     return Conflict("A game already exists by that name");
                 }
 
