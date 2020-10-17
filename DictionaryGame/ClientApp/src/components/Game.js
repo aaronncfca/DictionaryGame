@@ -21,7 +21,7 @@ export function Game(props) {
     }, []);
 
     //TODO: better: get out of here to an error page; maybe use Error Boundaries.
-    if (!user || user.gameId != gameId || !user.userName) {
+    if (!user || user.gameId !== gameId || !user.userName) {
         return (
             <div>
                 <h1>Error!</h1>
@@ -49,7 +49,7 @@ export function Game(props) {
                                 <ul>
                                     {players.map((player) => (
                                         <li key={player.name}
-                                            className={user.userName.normalize() === player.name.normalize() ? "this-player" : "" }>
+                                            className={user.userName.normalize() === player.name.normalize() ? "text-primary" : "" }>
                                             {player.name} ({player.points} points)
                                         </li>
                                     ))}
