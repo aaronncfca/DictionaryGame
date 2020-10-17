@@ -1,5 +1,6 @@
-﻿import React, { useState } from 'react';
+﻿import React, { useState, useContext } from 'react';
 import { useHistory } from 'react-router-dom'
+import { UserContext } from "../UserContext.js"
 
 
 export function JoinGame(props) {
@@ -9,6 +10,7 @@ export function JoinGame(props) {
     const [validated, setValidated] = useState(false);
     const history = useHistory();
 
+    const { setUser } = useContext(UserContext);
 
     async function handleFormSubmitted(event) {
         const form = event.target;
@@ -39,6 +41,13 @@ export function JoinGame(props) {
                 alert("Error joining game: " + text);
             } else {
                 const gameId = Number.parseInt(text);
+
+                // Set the global user context. This passes the game id on to the Game component.
+                setUser({
+                    gameId: gameId,
+                    userName: usrname,
+                    isHost: false
+                });
 
                 // Go to the game window!
                 history.push("/game/" + gameId);

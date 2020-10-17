@@ -1,4 +1,5 @@
-﻿import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect, useContext } from 'react';
+import { UserContext } from "../UserContext.js"
 
 export function Game(props) {
     const gameId = props.match.params.id;
@@ -6,6 +7,7 @@ export function Game(props) {
     const [isLoading, setIsLoading] = useState(true);
     const [gameName, setGameName] = useState('');
     const [players, setPlayers] = useState([]);
+    const { user } = useContext(UserContext);
 
     useEffect(() => {
         (async function f() {
@@ -18,9 +20,18 @@ export function Game(props) {
         })();
     }, []);
 
+    //TODO: better: get out of here to an error page; maybe use Error Boundaries.
+    if (!user || user.gameId != gameId || !user.userName) {
+        return (
+            <div>
+                <h1>Error!</h1>
+                <p>Invalid game. Did you refresh the page? Please try joining again!</p>
+            </div>
+        );
+    }
 
     return (
-        <div>
+        <div className={user.isHost ? "player-is-host" : ""}>
             <h1>Welcome to the Dictionary Game!</h1>
             {isLoading ?
                 <div className="d-flex justify-content-center">
@@ -37,7 +48,10 @@ export function Game(props) {
                                 <h3>Players</h3>
                                 <ul>
                                     {players.map((player) => (
-                                        <li key={player.name}>{player.name} ({player.points} points)</li>
+                                        <li key={player.name}
+                                            className={user.userName.normalize() === player.name.normalize() ? "this-player" : "" }>
+                                            {player.name} ({player.points} points)
+                                        </li>
                                     ))}
                                 </ul>
                             </div>

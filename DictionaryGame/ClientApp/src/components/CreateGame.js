@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { useHistory } from 'react-router-dom'
+import { UserContext } from '../UserContext.js'
 
 
 export function CreateGame(props) {
@@ -8,6 +9,8 @@ export function CreateGame(props) {
     const [password, setPassword] = useState('');
     const [validated, setValidated] = useState(false);
     const history = useHistory();
+
+    const { setUser } = useContext(UserContext);
 
 
     async function handleFormSubmitted(event) {
@@ -39,6 +42,13 @@ export function CreateGame(props) {
                 alert("Error creating game: " + text);
             } else {
                 const gameId = Number.parseInt(text);
+
+                // Set the global user context. This passes the game id on to the Game component.
+                setUser({
+                    gameId: gameId,
+                    userName: usrname,
+                    isHost: true
+                });
 
                 // Go to the game window!
                 history.push("/game/" + gameId);
