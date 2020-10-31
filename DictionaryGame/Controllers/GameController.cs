@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using DictionaryGame.Models;
 using Microsoft.AspNetCore.Mvc;
-using System.Text.Json;
-using System.Net.Http;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.SignalR;
+using System.Threading.Tasks;
+using System.Diagnostics.CodeAnalysis;
 
 namespace DictionaryGame
 {
@@ -15,8 +15,15 @@ namespace DictionaryGame
     [ApiController]
     public class GameController : ControllerBase
     {
-        const string SessionPlayerName = "_Name";
-        const string SessionGameId = "_GameId";
+        private readonly IHubContext<GameConHub> _gameHubContext;
+
+        public const string SessionPlayerName = "_Name";
+        public const string SessionGameId = "_GameId";
+
+        public GameController([NotNull] IHubContext<GameConHub> gameHubContext)
+        {
+            _gameHubContext = gameHubContext;
+        }
 
         // GET: api/<GameController>
         //[HttpGet]
@@ -61,7 +68,7 @@ namespace DictionaryGame
             if (data.Name == null) return BadRequest("Game name is required");
             if (data.Username == null) return BadRequest("User name is required");
             if (data.Password == null) return BadRequest("Password is required");
-            
+
             if (data.Name.Length > 50) return BadRequest("Name too long");
             if (data.Name.Length < 1) return BadRequest("Name is required");
             if (data.Username.Length > 50) return BadRequest("User name too long");
@@ -89,15 +96,24 @@ namespace DictionaryGame
                 Program.ActiveGames.Add(id, game);
             }
 
+            return AddPlayer(game, id, data, true);
+        }
 
+        IActionResult AddPlayer(Game game, int gameId, GameReqArgs data, bool isHost)
+        { 
             var player = new Player(data.Username);
             game.Players.Add(player);
-            game.Host = player; //TODO: would probably be better to add an IsHost field to Player
 
+            if (isHost)
+            {
+                game.Host = player; //TODO: would probably be better to add an IsHost field to Player
+            }
+
+            // Remember this player. TODO: use something better than HttpContext!
             HttpContext.Session.SetString(SessionPlayerName, data.Username);
-            HttpContext.Session.SetInt32(SessionGameId, id);
+            HttpContext.Session.SetInt32(SessionGameId, gameId);
 
-            return Ok(id);
+            return Ok(gameId);
         }
 
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -116,6 +132,7 @@ namespace DictionaryGame
             if (data.Username.Length < 1) return BadRequest("User name is required");
 
             Game game;
+            int gameId;
             KeyValuePair<int, Game> gameEntry;
 
             lock (Program.ActiveGames)
@@ -128,6 +145,7 @@ namespace DictionaryGame
                 }
 
                 game = gameEntry.Value;
+                gameId = gameEntry.Key;
             }
 
             if (game.Password != data.Password)
@@ -139,9 +157,12 @@ namespace DictionaryGame
 
             // TODO: use SignInManager instead of Session.
             HttpContext.Session.SetString(SessionPlayerName, data.Username);
-            HttpContext.Session.SetInt32(SessionGameId, gameEntry.Key);
+            HttpContext.Session.SetInt32(SessionGameId, gameId);
 
-            return Ok(gameEntry.Key);
+            // TEMP: send signal to let others know.
+            //_gameHubContext.Clients.All.SendAsync("sendPlayerList", gameId);
+
+            return Ok(gameId);
         }
 
         [HttpDelete("{id}")]

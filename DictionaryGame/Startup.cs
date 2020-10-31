@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.AspNetCore.SpaServices.ReactDevelopmentServer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -35,10 +36,15 @@ namespace DictionaryGame
             {
                 configuration.RootPath = "ClientApp/build";
             });
+
+            services.AddSignalR(options =>
+            {
+                options.EnableDetailedErrors = true;
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IHostApplicationLifetime hostApplicationLifetime)
         {
             if (env.IsDevelopment())
             {
@@ -64,7 +70,10 @@ namespace DictionaryGame
                 endpoints.MapControllerRoute(
                     name: "default",
                     pattern: "{controller}/{action=Index}/{id?}");
+
+                endpoints.MapHub<GameConHub>("/gameconhub");
             });
+
 
             app.UseSpa(spa =>
             {
@@ -75,6 +84,23 @@ namespace DictionaryGame
                     spa.UseReactDevelopmentServer(npmScript: "start");
                 }
             });
+
+
+            // Example code for how to send clock ticks over SignalR.
+            //hostApplicationLifetime.ApplicationStarted.Register(() =>
+            //{
+            //    var serviceProvider = app.ApplicationServices;
+            //    // This was example code.
+            //    //var gameHub = (IHubContext<GameHub>)serviceProvider.GetService(typeof(IHubContext<GameHub>));
+
+            //    //var timer = new System.Timers.Timer(1000);
+            //    //timer.Enabled = true;
+            //    //timer.Elapsed += delegate (object sender, System.Timers.ElapsedEventArgs e) {
+            //    //    chatHub.Clients.All.SendAsync("setTime", DateTime.Now.ToString("dddd d MMMM yyyy HH:mm:ss"));
+            //    //};
+            //    //timer.Start();
+            //});
+
         }
     }
 }

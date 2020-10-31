@@ -1,5 +1,6 @@
 ﻿import React, { useState, useEffect, useContext } from 'react';
-import { UserContext } from "../UserContext.js"
+import { UserContext } from "../UserContext.js";
+import * as signalR from "@microsoft/signalr";
 
 export function Game(props) {
     const gameId = props.match.params.id;
@@ -8,6 +9,26 @@ export function Game(props) {
     const [gameName, setGameName] = useState('');
     const [players, setPlayers] = useState([]);
     const { user } = useContext(UserContext);
+
+    // TODO: why does this get called multiple times?
+    const hubConnection = new signalR.HubConnectionBuilder()
+        .withUrl("/gameconhub")
+        .configureLogging(signalR.LogLevel.Information)
+        .build();
+
+    hubConnection.start().then(() => {
+        // Hub connection is alive.
+        console.log(hubConnection.connectionId);
+
+        // TODO: don't send this until we've actually successfully joined!
+        // TODO: signal doesn't seem to go through!
+        hubConnection.invoke("joinGame", Number.parseInt(gameId))
+            .then(() => { console.log("successfully sent joinGame.")})
+            .catch((e) => {
+                console.log(e.message)
+            });
+
+    }).catch(e => console.log(e));
 
     useEffect(() => {
         (async function f() {
@@ -18,10 +39,23 @@ export function Game(props) {
             setGameName(game.name);
             setIsLoading(false);
         })();
+
+        hubConnection.on("setPlayerList", (_players) => {
+            // Super simple error check. Is this necessary?
+            if (!_players || !_players.length) {
+                console.log(_players);
+                throw new Error("Invalid data received from setPlayerList hub connection!");
+            }
+            setPlayers(_players);
+        });
+
+        return () => {
+            hubConnection.off("setPlayerList");
+        };
     }, []);
 
     //TODO: better: get out of here to an error page; maybe use Error Boundaries.
-    if (!user || user.gameId !== gameId || !user.userName) {
+    if (!user || user.gameId !== Number.parseInt(gameId) || !user.userName) {
         return (
             <div>
                 <h1>Error!</h1>
