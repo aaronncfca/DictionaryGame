@@ -10,26 +10,8 @@ export function Game(props) {
     const [players, setPlayers] = useState([]);
     const { user } = useContext(UserContext);
 
-    // TODO: why does this get called multiple times?
-    const hubConnection = new signalR.HubConnectionBuilder()
-        .withUrl("/gameconhub")
-        .configureLogging(signalR.LogLevel.Information)
-        .build();
 
-    hubConnection.start().then(() => {
-        // Hub connection is alive.
-        console.log(hubConnection.connectionId);
-
-        // TODO: don't send this until we've actually successfully joined!
-        // TODO: signal doesn't seem to go through!
-        hubConnection.invoke("joinGame", Number.parseInt(gameId))
-            .then(() => { console.log("successfully sent joinGame.")})
-            .catch((e) => {
-                console.log(e.message)
-            });
-
-    }).catch(e => console.log(e));
-
+    // Place game logic here which should only be executed once.
     useEffect(() => {
         (async function f() {
             const data = await fetch('/GameApi/Game/' + gameId);
@@ -39,6 +21,26 @@ export function Game(props) {
             setGameName(game.name);
             setIsLoading(false);
         })();
+
+        const hubConnection = new signalR.HubConnectionBuilder()
+            .withUrl("/gameconhub")
+            .configureLogging(signalR.LogLevel.Information)
+            .build();
+
+        hubConnection.start().then(() => {
+
+            // Hub connection is alive.
+            console.log(hubConnection.connectionId);
+
+            // TODO: don't send this until we've actually successfully joined!
+            // TODO: signal doesn't seem to go through!
+            hubConnection.invoke("joinGame", Number.parseInt(gameId))
+                .then(() => { console.log("successfully sent joinGame.") })
+                .catch((e) => {
+                    console.log(e.message)
+                });
+
+        }).catch(e => console.log(e));
 
         hubConnection.on("setPlayerList", (_players) => {
             // Super simple error check. Is this necessary?
@@ -51,6 +53,7 @@ export function Game(props) {
 
         return () => {
             hubConnection.off("setPlayerList");
+            hubConnection.stop();
         };
     }, []);
 
