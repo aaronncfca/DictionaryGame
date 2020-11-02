@@ -159,9 +159,6 @@ namespace DictionaryGame
             HttpContext.Session.SetString(SessionPlayerName, data.Username);
             HttpContext.Session.SetInt32(SessionGameId, gameId);
 
-            // TEMP: send signal to let others know.
-            //_gameHubContext.Clients.All.SendAsync("sendPlayerList", gameId);
-
             return Ok(gameId);
         }
 

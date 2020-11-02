@@ -1,5 +1,6 @@
 ﻿import React, { useState, useEffect, useContext } from 'react';
 import { UserContext } from "../UserContext.js";
+import { useEffectOnce } from "../hooks/UseEffectOnce.js"
 import * as signalR from "@microsoft/signalr";
 
 export function Game(props) {
@@ -12,36 +13,37 @@ export function Game(props) {
 
 
     // Place game logic here which should only be executed once.
-    useEffect(() => {
-        (async function f() {
-            const data = await fetch('/GameApi/Game/' + gameId);
-            const game = await data.json();
-
-            setPlayers(game.players);
-            setGameName(game.name);
-            setIsLoading(false);
-        })();
+    useEffectOnce(() => {
 
         const hubConnection = new signalR.HubConnectionBuilder()
             .withUrl("/gameconhub")
             .configureLogging(signalR.LogLevel.Information)
             .build();
 
-        hubConnection.start().then(() => {
+        fetch('/GameApi/Game/' + gameId).then((data) => {
+            const jsonPromise = data.json();
 
-            // Hub connection is alive.
-            console.log(hubConnection.connectionId);
+            const hubPromise = hubConnection.start();
 
-            // TODO: don't send this until we've actually successfully joined!
-            // TODO: signal doesn't seem to go through!
-            hubConnection.invoke("joinGame", Number.parseInt(gameId))
-                .then(() => { console.log("successfully sent joinGame.") })
-                .catch((e) => {
-                    console.log(e.message)
-                });
+            Promise.all([jsonPromise, hubPromise]).then(([game]) => {
 
-        }).catch(e => console.log(e));
+                setPlayers(game.players);
+                setGameName(game.name);
 
+                // Hub connection is alive.
+                console.log(hubConnection.connectionId);
+
+                hubConnection.invoke("joinGame", Number.parseInt(gameId))
+                    .then(() => {
+                        console.log("successfully sent joinGame.")
+
+                        setIsLoading(false);
+                    })
+                    .catch((e) => {
+                        console.log(e.message)
+                    });
+            }).catch(e => console.log(e));
+        });
         hubConnection.on("setPlayerList", (_players) => {
             // Super simple error check. Is this necessary?
             if (!_players || !_players.length) {
