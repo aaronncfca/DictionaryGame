@@ -6,4 +6,9 @@
 export const UserContext = React.createContext({
     user: { },
     setUser: () => { }
+        // gameId
+        // userName
+        // gameName
+        // gamePassword
+        // isHost
 });

@@ -2,6 +2,7 @@
 import { UserContext } from "../UserContext.js";
 import { useEffectOnce } from "../hooks/UseEffectOnce.js"
 import { GameStepLobby } from "./GamePages/GameStepLobby.js"
+import { GameStepGetDict } from "./GamePages/GameStepGetDict.js"
 import * as signalR from "@microsoft/signalr";
 
 export function Game(props) {
@@ -91,12 +92,16 @@ export function Game(props) {
         hubConnection.invoke("startGame");
     }
 
+    function handleSubmitDictDef(word, def) {
+        hubConnection.invoke("submitDictDef", { word: word, definition: def });
+    }
+
     function renderGamePage() {
         switch (turn.stepId) {
             case 0:
                 return (<GameStepLobby user={user} onStartGame={handleStartGame} />);
-            //case 1:
-            //    return (<GameStepGetDict />);
+            case 1:
+                return (<GameStepGetDict user={user} playerIt={turn.playerIt} onSubmitDef={handleSubmitDictDef} />);
             //case 2:
             //    return (<GameStepGetDefs />);
             //case 3:

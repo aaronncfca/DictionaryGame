@@ -102,7 +102,7 @@ namespace DictionaryGame
         IActionResult AddPlayer(Game game, int gameId, GameReqArgs data, bool isHost)
         { 
             var player = new Player(data.Username);
-            game.Players.Add(player);
+            game.Players.AddLast(player);
 
             if (isHost)
             {
@@ -153,7 +153,7 @@ namespace DictionaryGame
                 return Forbid("Incorrect password");
             }
 
-            game.Players.Add(new Player(data.Username));
+            game.Players.AddLast(new Player(data.Username));
 
             // TODO: use SignInManager instead of Session.
             HttpContext.Session.SetString(SessionPlayerName, data.Username);

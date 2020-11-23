@@ -9,6 +9,16 @@ using Microsoft.Extensions.Configuration;
 
 namespace DictionaryGame
 {
+
+    public enum GameStep
+    {
+        Lobby = 0,
+        GetDict = 1,
+        GetDefs = 2,
+        Vote = 3,
+        Review = 4
+    }
+
     public class GameConHub : Hub
     {
         public async Task SendPlayerList(int gameId)
@@ -52,14 +62,22 @@ namespace DictionaryGame
             await SendPlayerList(gameId);
         }
 
-        public async Task StartGame()
+        public async Task StartGame() //TODO: rename StartRound
         {
-            string groupName = Context.Items["gameId"]?.ToString();
+            int gameId = (int) Context.Items["gameId"];
+            Game game;
 
-            await Clients.Group(groupName).SendAsync("gotoStep", new
+            lock (Program.ActiveGames)
             {
-                stepId = 1,
-                playerIt = "" // TODO!
+                game = Program.ActiveGames[gameId];
+            }
+
+            game.AdvancePlayerIt(); // New round, new player's it!
+
+            await Clients.Group(gameId.ToString()).SendAsync("gotoStep", new
+            {
+                stepId = GameStep.GetDict,
+                playerIt = game.PlayerIt.Name
             });
         }
 
