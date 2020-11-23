@@ -153,13 +153,12 @@ namespace DictionaryGame
                 return Forbid("Incorrect password");
             }
 
-            game.Players.AddLast(new Player(data.Username));
+            if(game.Players.FirstOrDefault((entry) => entry.Name == data.Username) != null)
+            {
+                return Conflict("A player by that name has aready joined");
+            }
 
-            // TODO: use SignInManager instead of Session.
-            HttpContext.Session.SetString(SessionPlayerName, data.Username);
-            HttpContext.Session.SetInt32(SessionGameId, gameId);
-
-            return Ok(gameId);
+            return AddPlayer(game, gameId, data, false);
         }
 
         [HttpDelete("{id}")]
