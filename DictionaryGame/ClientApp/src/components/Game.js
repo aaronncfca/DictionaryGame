@@ -1,6 +1,7 @@
 ﻿import React, { useState, useEffect, useContext } from 'react';
 import { UserContext } from "../UserContext.js";
 import { useEffectOnce } from "../hooks/UseEffectOnce.js"
+import { GameStepLobby } from "./GamePages/GameStepLobby.js"
 import * as signalR from "@microsoft/signalr";
 
 export function Game(props) {
@@ -9,20 +10,29 @@ export function Game(props) {
     const [isLoading, setIsLoading] = useState(true);
     const [gameName, setGameName] = useState('');
     const [players, setPlayers] = useState([]);
+    const [turn, setTurn] = useState({
+        stepId: 0, //0 = not started; awaiting players
+                // 1 = Acquiring word and dictionary def
+				// 2 = Collect defs
+				// 3 = Vote on defs
+                // 4 = Display answers and scores
+        playerIt: ""
+
+    })
     const { user } = useContext(UserContext);
 
-
-    // Place game logic here which should only be executed once.
-    useEffectOnce(() => {
-
-        const hubConnection = new signalR.HubConnectionBuilder()
+    // Declare hubConnection as a state variable so it doesn't get re-initialized on rerender.
+    const [hubConnection] = useState(() => {
+        return new signalR.HubConnectionBuilder()
             .withUrl("/gameconhub")
             .configureLogging(signalR.LogLevel.Information)
             .build();
+    });
 
+    // Place game logic here which should only be executed once.
+    useEffectOnce(() => {
         fetch('/GameApi/Game/' + gameId).then((data) => {
             const jsonPromise = data.json();
-
             const hubPromise = hubConnection.start();
 
             Promise.all([jsonPromise, hubPromise]).then(([game]) => {
@@ -44,6 +54,7 @@ export function Game(props) {
                     });
             }).catch(e => console.log(e));
         });
+
         hubConnection.on("setPlayerList", (_players) => {
             // Super simple error check. Is this necessary?
             if (!_players || !_players.length) {
@@ -52,6 +63,13 @@ export function Game(props) {
             }
             setPlayers(_players);
         });
+
+        hubConnection.on("gotoStep", ({ stepId, playerIt }) => {
+            if (!playerIt) {
+                playerIt = turn.playerIt;
+            }
+            setTurn({ stepId: stepId, playerIt: playerIt });
+        })
 
         return () => {
             hubConnection.off("setPlayerList");
@@ -67,6 +85,28 @@ export function Game(props) {
                 <p>Invalid game. Did you refresh the page? Please try joining again!</p>
             </div>
         );
+    }
+
+    function handleStartGame() {
+        hubConnection.invoke("startGame");
+    }
+
+    function renderGamePage() {
+        switch (turn.stepId) {
+            case 0:
+                return (<GameStepLobby user={user} onStartGame={handleStartGame} />);
+            //case 1:
+            //    return (<GameStepGetDict />);
+            //case 2:
+            //    return (<GameStepGetDefs />);
+            //case 3:
+            //    return (<GamestepVote />);
+            //case 4:
+            //    return (<GameStepReview />);
+            default:
+                console.error("Invalid step ID!");
+                return "Error!";
+        }
     }
 
     return (
@@ -96,6 +136,7 @@ export function Game(props) {
                             </div>
                             <div className="col">
                                 <h3>Game (TODO)</h3>
+                                { renderGamePage() }
                             </div>
                         </div>
                     </div>

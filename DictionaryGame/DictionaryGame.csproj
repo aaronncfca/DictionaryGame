@@ -26,10 +26,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="ClientApp\src\components\NewFolder\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <None Include="GameConHub.cs" />
   </ItemGroup>
 

@@ -47,6 +47,8 @@ export function CreateGame(props) {
                 setUser({
                     gameId: gameId,
                     userName: usrname,
+                    gameName: gameName,
+                    gamePassword: password,
                     isHost: true
                 });
 

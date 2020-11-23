@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using DictionaryGame.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.Extensions.Configuration;
 
 namespace DictionaryGame
 {
@@ -32,22 +33,34 @@ namespace DictionaryGame
         {
             string groupName = gameId.ToString();
 
+            Context.Items.Add("gameId", gameId);
+
             await Groups.AddToGroupAsync(Context.ConnectionId, groupName);
 
             await SendPlayerList(gameId);
         }
 
-
         /// <summary>
         /// Removes this user to the SignalR group with the game ID. Must be called on game deletion!
         /// </summary>
-        public async Task RemoveFromGame(int gameId)
+        public async Task LeaveGame(int gameId)
         {
             string groupName = gameId.ToString();
 
             await Groups.RemoveFromGroupAsync(Context.ConnectionId, groupName);
 
             await SendPlayerList(gameId);
+        }
+
+        public async Task StartGame()
+        {
+            string groupName = Context.Items["gameId"]?.ToString();
+
+            await Clients.Group(groupName).SendAsync("gotoStep", new
+            {
+                stepId = 1,
+                playerIt = "" // TODO!
+            });
         }
 
     }
