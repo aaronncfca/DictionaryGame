@@ -10,15 +10,6 @@ using Microsoft.Extensions.Configuration;
 namespace DictionaryGame
 {
 
-    public enum GameStep
-    {
-        Lobby = 0,
-        GetDict = 1,
-        GetDefs = 2,
-        Vote = 3,
-        Review = 4
-    }
-
     public class GameConHub : Hub
     {
         public async Task SendPlayerList(int gameId)
@@ -72,14 +63,17 @@ namespace DictionaryGame
                 game = Program.ActiveGames[gameId];
             }
 
-            game.AdvancePlayerIt(); // New round, new player's it!
+            game.NewRound();
 
             await Clients.Group(gameId.ToString()).SendAsync("gotoStep", new
             {
-                stepId = GameStep.GetDict,
-                playerIt = game.PlayerIt.Name
+                stepId = (int)RoundState.GetDict,
+                playerIt = game.Round.PlayerIt.Name
             });
         }
+
+        // TODO: implement submitDictDef
+        // Then implement the next screen!
 
     }
 }

@@ -13,6 +13,9 @@ namespace DictionaryGame.Models
             Password = pwd;
             Players = new LinkedList<Player>();
             _PlayerIt = null;
+
+            History = new LinkedList<Round>();
+            Round = null;
         }
 
 
@@ -21,35 +24,40 @@ namespace DictionaryGame.Models
         public string Password { get; private set; }
 
         public LinkedList<Player> Players { get; private set; }
+        
+        // Quietly keep track of the player who's it as a linked list node so
+        // we can access Next when it's time for a new round.
+        // Check Round.PlayerIt to check who's it from outside.
+        private LinkedListNode<Player> _PlayerIt;
+
+        public Player Host { get; set; }
+
+        // TODO: don't serialize attribute on this this probably?
+        // If client needs it, it should probably have it's own API call.
+        /// <summary>
+        /// List of all rounds. The current round will be History.Last.
+        /// </summary>
+        public LinkedList<Round> History { get; private set; }
 
         /// <summary>
-        /// Advance to the next player's turn. Goes to the first player if 
+        /// The current round.
         /// </summary>
-        public void AdvancePlayerIt()
+        public Round Round { get; private set; }
+
+        public void NewRound()
         {
-            if(_PlayerIt == null || _PlayerIt.Next == null)
+            if (_PlayerIt == null || _PlayerIt.Next == null)
             {
                 // This should never be called if there are no players!
                 // (Really it shouldn't be called unless there are 2 or more.)
                 if (Players.Count == 0) throw new InvalidOperationException();
 
-                // Wrap around to first pl  ayer.
+                // Wrap around to first player.
                 _PlayerIt = Players.First;
             }
-        }
-        
-        /// <summary>
-        /// Retrieves the Player that is currently it.
-        /// Make sure AdvancePlayerIt is called before first calling this method!
-        /// </summary>
-        public Player PlayerIt
-        {
-            get {
-                return _PlayerIt?.Value;
-            }
-        }
-        private LinkedListNode<Player> _PlayerIt;
 
-        public Player Host { get; set; }
+            Round = new Round(_PlayerIt.Value);
+            History.AddLast(Round);
+        }
     }
 }
