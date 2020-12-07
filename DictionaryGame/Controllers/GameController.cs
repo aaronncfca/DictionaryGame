@@ -99,7 +99,7 @@ namespace DictionaryGame
             return AddPlayer(game, id, data, true);
         }
 
-        IActionResult AddPlayer(Game game, int gameId, GameReqArgs data, bool isHost)
+        private IActionResult AddPlayer(Game game, int gameId, GameReqArgs data, bool isHost)
         { 
             var player = new Player(data.Username);
             game.Players.AddLast(player);
@@ -161,9 +161,7 @@ namespace DictionaryGame
             return AddPlayer(game, gameId, data, false);
         }
 
-        [HttpDelete("{id}")]
-        public void Delete(int id)
-        {
-        }
+        // NOTE: once the player has joined, a SignalR hub (GameHub) is openned and all
+        // further communcation is handled there.
     }
 }
