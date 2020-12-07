@@ -44,7 +44,12 @@ export function Game(props) {
                 // Hub connection is alive.
                 console.log(hubConnection.connectionId);
 
-                hubConnection.invoke("joinGame", Number.parseInt(gameId))
+                const joinGameArgs = {
+                    GameId: user.gameId,
+                    Username: user.userName
+                };
+
+                hubConnection.invoke("joinGame", joinGameArgs)
                     .then(() => {
                         console.log("successfully sent joinGame.")
 

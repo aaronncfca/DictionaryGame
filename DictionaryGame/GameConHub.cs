@@ -27,18 +27,25 @@ namespace DictionaryGame
             await Clients.Group(gameId.ToString()).SendAsync("setPlayerList", game.Players);
         }
 
+        public class JoinGameReqArgs
+        {
+            public int GameId { get; set; }
+            public string Username { get; set; }
+        }
+
         /// <summary>
         /// Adds this user to the SignalR group with the game ID. Should be called on game creation.
         /// </summary>
-        public async Task JoinGame(int gameId)
+        public async Task JoinGame(JoinGameReqArgs args)
         {
-            string groupName = gameId.ToString();
+            string groupName = args.GameId.ToString();
 
-            Context.Items.Add("gameId", gameId);
+            Context.Items.Add("gameId", args.GameId);
+            Context.Items.Add("username", args.Username);
 
             await Groups.AddToGroupAsync(Context.ConnectionId, groupName);
 
-            await SendPlayerList(gameId);
+            await SendPlayerList(args.GameId);
         }
 
         /// <summary>
