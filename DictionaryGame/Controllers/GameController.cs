@@ -15,12 +15,12 @@ namespace DictionaryGame
     [ApiController]
     public class GameController : ControllerBase
     {
-        private readonly IHubContext<GameConHub> _gameHubContext;
+        private readonly IHubContext<GameHub> _gameHubContext;
 
         public const string SessionPlayerName = "_Name";
         public const string SessionGameId = "_GameId";
 
-        public GameController([NotNull] IHubContext<GameConHub> gameHubContext)
+        public GameController([NotNull] IHubContext<GameHub> gameHubContext)
         {
             _gameHubContext = gameHubContext;
         }

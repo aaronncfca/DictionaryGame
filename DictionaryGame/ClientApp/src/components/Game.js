@@ -25,7 +25,7 @@ export function Game(props) {
     // Declare hubConnection as a state variable so it doesn't get re-initialized on rerender.
     const [hubConnection] = useState(() => {
         return new signalR.HubConnectionBuilder()
-            .withUrl("/gameconhub")
+            .withUrl("/gamehub")
             .configureLogging(signalR.LogLevel.Information)
             .build();
     });

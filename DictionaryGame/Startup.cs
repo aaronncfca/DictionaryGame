@@ -71,7 +71,7 @@ namespace DictionaryGame
                     name: "default",
                     pattern: "{controller}/{action=Index}/{id?}");
 
-                endpoints.MapHub<GameConHub>("/gameconhub");
+                endpoints.MapHub<GameHub>("/gamehub");
             });
 
 

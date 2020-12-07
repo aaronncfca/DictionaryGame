@@ -10,7 +10,7 @@ using Microsoft.Extensions.Configuration;
 namespace DictionaryGame
 {
 
-    public class GameConHub : Hub
+    public class GameHub : Hub
     {
         public async Task SendPlayerList(int gameId)
         {
