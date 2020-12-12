@@ -3,7 +3,10 @@ import { UserContext } from "../UserContext.js";
 import { useEffectOnce } from "../hooks/UseEffectOnce.js"
 import { GameStepLobby } from "./GamePages/GameStepLobby.js"
 import { GameStepGetDict } from "./GamePages/GameStepGetDict.js"
+import { GameStepGetDefs } from "./GamePages/GameStepGetDefs.js"
 import * as signalR from "@microsoft/signalr";
+
+var tempvar = 0;
 
 export function Game(props) {
     const gameId = props.match.params.id;
@@ -12,14 +15,13 @@ export function Game(props) {
     const [gameName, setGameName] = useState('');
     const [players, setPlayers] = useState([]);
     const [turn, setTurn] = useState({
-        stepId: 0, //0 = not started; awaiting players
-                // 1 = Acquiring word and dictionary def
-				// 2 = Collect defs
-				// 3 = Vote on defs
-                // 4 = Display answers and scores
+        stepId: 0,  //0 = not started; awaiting players
+                    // 1 = Acquiring word and dictionary def
+                    // 2 = Collect defs
+                    // 3 = Vote on defs
+                    // 4 = Display answers and scores
         playerIt: ""
-
-    })
+    });
     const { user } = useContext(UserContext);
 
     // Declare hubConnection as a state variable so it doesn't get re-initialized on rerender.
@@ -70,16 +72,26 @@ export function Game(props) {
             setPlayers(_players);
         });
 
-        hubConnection.on("gotoStep", ({ stepId, playerIt }) => {
+        // Todo: rename UpdateTurn
+        hubConnection.on("gotoStep", ({ stepId, playerIt, word }) => {
             if (!playerIt) {
                 playerIt = turn.playerIt;
+                //NEXT TODO: figure out why turn is reset to default val.
             }
-            setTurn({ stepId: stepId, playerIt: playerIt });
-        })
+
+            // This doesn't need to be set except in step 2.
+            if (stepId < 1 || (!word && turn.word)) {
+                word = null;
+            }
+
+            setTurn({ stepId: stepId, playerIt: playerIt, word: word });
+        });
 
         return () => {
             hubConnection.off("setPlayerList");
-            hubConnection.stop();
+            // Note This will automatically/forcefully remove the player from the game!
+            // See GameHub.OnDisconnectAsync.
+            hubConnection.stop(); 
         };
     }, []);
 
@@ -98,7 +110,11 @@ export function Game(props) {
     }
 
     function handleSubmitDictDef(word, def) {
-        hubConnection.invoke("submitDictDef", { word: word, definition: def });
+        hubConnection.invoke("submitDictDef", { Word: word, Definition: def });
+    }
+
+    function handleSubmitUserDef(word, def) {
+        hubConnection.invoke("submitUserDef", { Word: word });
     }
 
     function renderGamePage() {
@@ -107,8 +123,11 @@ export function Game(props) {
                 return (<GameStepLobby user={user} onStartGame={handleStartGame} />);
             case 1:
                 return (<GameStepGetDict user={user} playerIt={turn.playerIt} onSubmitDef={handleSubmitDictDef} />);
-            //case 2:
-            //    return (<GameStepGetDefs />);
+            case 2:
+                return (
+                    <GameStepGetDefs user={user} playerIt={turn.playerIt} word={turn.word}
+                        onSubmitDef={handleSubmitUserDef} />
+                );
             //case 3:
             //    return (<GamestepVote />);
             //case 4:

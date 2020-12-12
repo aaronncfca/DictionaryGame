@@ -123,6 +123,33 @@ namespace DictionaryGame
             });
         }
 
+        public class SubmitDictDefArgs
+        {
+            public string Word { get; set; }
+            public string Definition { get; set; }
+        }
+
+        public async Task SubmitDictDef(SubmitDictDefArgs args)
+        {
+            int gameId = (int)Context.Items["gameId"];
+            Game game;
+
+            lock (Program.ActiveGames)
+            {
+                game = Program.ActiveGames[gameId];
+            }
+
+            game.Round.Word = args.Word;
+            game.Round.DictDef = args.Definition;
+
+            await Clients.Group(gameId.ToString()).SendAsync("gotoStep", new
+            {
+                stepId = (int)RoundState.GetDefs,
+                word = game.Round.Word
+            });
+
+        }
+
         // TODO: implement submitDictDef
         // Then implement the next screen!
 
