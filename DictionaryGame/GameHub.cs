@@ -116,7 +116,7 @@ namespace DictionaryGame
 
             game.NewRound();
 
-            await Clients.Group(gameId.ToString()).SendAsync("gotoStep", new
+            await Clients.Group(gameId.ToString()).SendAsync("updateTurn", new
             {
                 stepId = (int)RoundState.GetDict,
                 playerIt = game.Round.PlayerIt.Name
@@ -142,7 +142,7 @@ namespace DictionaryGame
             game.Round.Word = args.Word;
             game.Round.DictDef = args.Definition;
 
-            await Clients.Group(gameId.ToString()).SendAsync("gotoStep", new
+            await Clients.Group(gameId.ToString()).SendAsync("updateTurn", new
             {
                 stepId = (int)RoundState.GetDefs,
                 word = game.Round.Word

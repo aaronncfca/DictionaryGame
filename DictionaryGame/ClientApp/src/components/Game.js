@@ -72,19 +72,11 @@ export function Game(props) {
             setPlayers(_players);
         });
 
-        // Todo: rename UpdateTurn
-        hubConnection.on("gotoStep", ({ stepId, playerIt, word }) => {
-            if (!playerIt) {
-                playerIt = turn.playerIt;
-                //NEXT TODO: figure out why turn is reset to default val.
-            }
-
-            // This doesn't need to be set except in step 2.
-            if (stepId < 1 || (!word && turn.word)) {
-                word = null;
-            }
-
-            setTurn({ stepId: stepId, playerIt: playerIt, word: word });
+        // Called to update turn properties whenever we advance to a new step.
+        hubConnection.on("updateTurn", (newTurn) => {
+            // Update with a function, since scope variables should not be accessed
+            // from within useEffectOnce.
+            setTurn((turn) => { return { ...turn, ...newTurn } });
         });
 
         return () => {
