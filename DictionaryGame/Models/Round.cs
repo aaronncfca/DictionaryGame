@@ -19,12 +19,13 @@ namespace DictionaryGame.Models
         public Round(Player playerIt)
         {
             PlayerIt = playerIt;
+            Responses = new Dictionary<string, string>();
         }
 
         public Player PlayerIt { get; private set; }
         public RoundState RoundState { get; set; }
         public string Word { get; set; }
         public string DictDef { get; set; }
-        public List<String> Responses { get; private set; }
+        public Dictionary<string, string> Responses { get; private set; }
     }
 }

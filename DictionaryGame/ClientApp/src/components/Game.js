@@ -14,6 +14,7 @@ export function Game(props) {
     const [isLoading, setIsLoading] = useState(true);
     const [gameName, setGameName] = useState('');
     const [players, setPlayers] = useState([]);
+    // TODO: rename round, setRound
     const [turn, setTurn] = useState({
         stepId: 0,  //0 = not started; awaiting players
                     // 1 = Acquiring word and dictionary def
@@ -105,8 +106,8 @@ export function Game(props) {
         hubConnection.invoke("submitDictDef", { Word: word, Definition: def });
     }
 
-    function handleSubmitUserDef(word, def) {
-        hubConnection.invoke("submitUserDef", { Word: word });
+    function handleSubmitPlayerDef(def) {
+        hubConnection.invoke("submitDef", { Definition: def });
     }
 
     function renderGamePage() {
@@ -118,14 +119,14 @@ export function Game(props) {
             case 2:
                 return (
                     <GameStepGetDefs user={user} playerIt={turn.playerIt} word={turn.word}
-                        onSubmitDef={handleSubmitUserDef} />
+                        onSubmitDef={handleSubmitPlayerDef} />
                 );
             //case 3:
             //    return (<GamestepVote />);
             //case 4:
             //    return (<GameStepReview />);
             default:
-                console.error("Invalid step ID!");
+                console.error("Invalid step ID:" + turn.stepId);
                 return "Error!";
         }
     }

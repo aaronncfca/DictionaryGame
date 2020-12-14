@@ -48,8 +48,10 @@ namespace DictionaryGame
             await SendPlayerList(args.GameId);
         }
 
-        private Player GetPlayer(string userName, Game game)
+        private Player GetCurrPlayer(Game game)
         {
+            string userName = (string)Context.Items["username"];
+
             Player player = game.Players.FirstOrDefault((entry) => entry.Name == userName);
             if (player == null)
             {
@@ -74,8 +76,22 @@ namespace DictionaryGame
         {
             await base.OnDisconnectedAsync(exception);
 
-            int gameId = (int)Context.Items["gameId"];
-            string groupName = gameId.ToString();
+            int gameId;
+            string groupName;
+
+            try
+            {
+                gameId = (int)Context.Items["gameId"];
+                groupName = gameId.ToString();
+            }
+            catch (NullReferenceException)
+            {
+                // This may happen if the game reference is invalid; e.g. the user
+                // refreshes the game page (thereby losing connection) and then
+                // navigates away (at which point this will be called).
+                return;
+            }
+
             Game game;
 
             lock (Program.ActiveGames)
@@ -83,7 +99,7 @@ namespace DictionaryGame
                 game = Program.ActiveGames[gameId];
             }
 
-            Player player = GetPlayer((string)Context.Items["username"], game);
+            Player player = GetCurrPlayer(game);
 
             game.Players.Remove(player);
 
@@ -148,6 +164,47 @@ namespace DictionaryGame
                 word = game.Round.Word
             });
 
+        }
+
+        public class SubmitDefArgs
+        {
+            public string Definition { get; set; }
+        }
+
+        public async Task SubmitDef(SubmitDefArgs args)
+        {
+            int gameId = (int)Context.Items["gameId"];
+            Game game;
+
+            lock (Program.ActiveGames)
+            {
+                game = Program.ActiveGames[gameId];
+            }
+
+            Player player = GetCurrPlayer(game);
+
+            game.Round.Responses.Add(player.Name, args.Definition);
+
+            bool allAnswersSubmitted = true;
+
+            //Check if all players have submitted a definition. If so, move to the next step!
+            foreach(var p in game.Players)
+            {
+                if(p != game.Round.PlayerIt && !game.Round.Responses.ContainsKey(p.Name))
+                {
+                    allAnswersSubmitted = false;
+                }
+            }
+
+            if(allAnswersSubmitted)
+            {
+                // TODO: implement private SendUpdateTurnAsync(object args)
+                await Clients.Group(gameId.ToString()).SendAsync("updateTurn", new
+                {
+                    stepId = (int)RoundState.Vote,
+                    responses = game.Round.Responses
+                });
+            }
         }
 
         // TODO: implement submitDictDef

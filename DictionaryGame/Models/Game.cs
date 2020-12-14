@@ -49,7 +49,6 @@ namespace DictionaryGame.Models
             if (_PlayerIt == null || _PlayerIt.Next == null)
             {
                 // This should never be called if there are no players!
-                // (Really it shouldn't be called unless there are 2 or more.)
                 if (Players.Count == 0) throw new InvalidOperationException();
 
                 // Wrap around to first player.
