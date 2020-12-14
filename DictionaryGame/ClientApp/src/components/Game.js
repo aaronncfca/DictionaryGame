@@ -157,7 +157,6 @@ export function Game(props) {
                                 </ul>
                             </div>
                             <div className="col">
-                                <h3>Game (TODO)</h3>
                                 { renderGamePage() }
                             </div>
                         </div>

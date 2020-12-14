@@ -61,7 +61,7 @@ export function JoinGame(props) {
 
     return (
         <div>
-            <h1>Create Game</h1>
+            <h1>Join Game</h1>
             <form noValidate className={validated ? "was-validated" : ""} onSubmit={handleFormSubmitted}>
                 <div className="form-group">
                     <label htmlFor="cg-usrname">
