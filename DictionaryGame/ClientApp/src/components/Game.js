@@ -15,7 +15,7 @@ export function Game(props) {
     const [gameName, setGameName] = useState('');
     const [players, setPlayers] = useState([]);
     // TODO: rename round, setRound
-    const [turn, setTurn] = useState({
+    const [round, setRound] = useState({
         stepId: 0,  //0 = not started; awaiting players
                     // 1 = Acquiring word and dictionary def
                     // 2 = Collect defs
@@ -73,11 +73,11 @@ export function Game(props) {
             setPlayers(_players);
         });
 
-        // Called to update turn properties whenever we advance to a new step.
-        hubConnection.on("updateTurn", (newTurn) => {
+        // Called to update round properties whenever we advance to a new step.
+        hubConnection.on("updateRound", (args) => {
             // Update with a function, since scope variables should not be accessed
             // from within useEffectOnce.
-            setTurn((turn) => { return { ...turn, ...newTurn } });
+            setRound((round) => { return { ...round, ...args } });
         });
 
         return () => {
@@ -111,14 +111,14 @@ export function Game(props) {
     }
 
     function renderGamePage() {
-        switch (turn.stepId) {
+        switch (round.stepId) {
             case 0:
                 return (<GameStepLobby user={user} onStartGame={handleStartGame} />);
             case 1:
-                return (<GameStepGetDict user={user} playerIt={turn.playerIt} onSubmitDef={handleSubmitDictDef} />);
+                return (<GameStepGetDict user={user} playerIt={round.playerIt} onSubmitDef={handleSubmitDictDef} />);
             case 2:
                 return (
-                    <GameStepGetDefs user={user} playerIt={turn.playerIt} word={turn.word}
+                    <GameStepGetDefs user={user} playerIt={round.playerIt} word={round.word}
                         onSubmitDef={handleSubmitPlayerDef} />
                 );
             //case 3:
@@ -126,7 +126,7 @@ export function Game(props) {
             //case 4:
             //    return (<GameStepReview />);
             default:
-                console.error("Invalid step ID:" + turn.stepId);
+                console.error("Invalid step ID:" + round.stepId);
                 return "Error!";
         }
     }

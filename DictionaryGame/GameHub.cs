@@ -132,7 +132,7 @@ namespace DictionaryGame
 
             game.NewRound();
 
-            await Clients.Group(gameId.ToString()).SendAsync("updateTurn", new
+            await SendUpdateRoundAsync(gameId, new
             {
                 stepId = (int)RoundState.GetDict,
                 playerIt = game.Round.PlayerIt.Name
@@ -158,7 +158,7 @@ namespace DictionaryGame
             game.Round.Word = args.Word;
             game.Round.DictDef = args.Definition;
 
-            await Clients.Group(gameId.ToString()).SendAsync("updateTurn", new
+            await SendUpdateRoundAsync(gameId, new
             {
                 stepId = (int)RoundState.GetDefs,
                 word = game.Round.Word
@@ -198,13 +198,17 @@ namespace DictionaryGame
 
             if(allAnswersSubmitted)
             {
-                // TODO: implement private SendUpdateTurnAsync(object args)
-                await Clients.Group(gameId.ToString()).SendAsync("updateTurn", new
+                await SendUpdateRoundAsync(gameId, new
                 {
                     stepId = (int)RoundState.Vote,
                     responses = game.Round.Responses
                 });
             }
+        }
+
+        private async Task SendUpdateRoundAsync(int gameId, object args)
+        {
+            await Clients.Group(gameId.ToString()).SendAsync("updateRound", args);
         }
 
         // TODO: implement submitDictDef
