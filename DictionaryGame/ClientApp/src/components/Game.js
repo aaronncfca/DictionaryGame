@@ -4,6 +4,7 @@ import { useEffectOnce } from "../hooks/UseEffectOnce.js"
 import { GameStepLobby } from "./GamePages/GameStepLobby.js"
 import { GameStepGetDict } from "./GamePages/GameStepGetDict.js"
 import { GameStepGetDefs } from "./GamePages/GameStepGetDefs.js"
+import { GameStepVote } from "./GamePages/GameStepVote.js"
 import * as signalR from "@microsoft/signalr";
 
 var tempvar = 0;
@@ -110,6 +111,22 @@ export function Game(props) {
         hubConnection.invoke("submitDef", { Definition: def });
     }
 
+    function handleSubmitVote(vote) {
+        const args = (vote === "def") ? {
+            VoteDef: true,
+            UserName: ""
+        } : {
+            VoteDef: false,
+            UserName: vote
+        };
+
+        hubConnection.invoke("submitVote", args);
+    }
+
+    function handleSubmitVoteIt(accurateDefs) {
+        hubConnection.invoke("submitVoteIt", { AccurateDefs: accurateDefs });
+    }
+
     function renderGamePage() {
         switch (round.stepId) {
             case 0:
@@ -121,8 +138,12 @@ export function Game(props) {
                     <GameStepGetDefs user={user} playerIt={round.playerIt} word={round.word}
                         onSubmitDef={handleSubmitPlayerDef} />
                 );
-            //case 3:
-            //    return (<GamestepVote />);
+            case 3:
+                return (
+                    <GameStepVote user={user} playerIt={round.playerIt} word={round.word} dictDef={round.dictDef}
+                        responses={round.responses}
+                        onSubmitVote={handleSubmitVote} onSubmitVoteIt={handleSubmitVoteIt} />
+                );
             //case 4:
             //    return (<GameStepReview />);
             default:

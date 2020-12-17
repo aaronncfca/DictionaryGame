@@ -76,22 +76,14 @@ namespace DictionaryGame
         {
             await base.OnDisconnectedAsync(exception);
 
-            int gameId;
-            string groupName;
+            // If the page has been refreshed without properly joining, the connection
+            // will be closed without gameId being set (etc.). In this case, there is
+            // nothing to clean up here.
+            if (!Context.Items.ContainsKey("gameId")) return;
 
-            try
-            {
-                gameId = (int)Context.Items["gameId"];
-                groupName = gameId.ToString();
-            }
-            catch (NullReferenceException)
-            {
-                // This may happen if the game reference is invalid; e.g. the user
-                // refreshes the game page (thereby losing connection) and then
-                // navigates away (at which point this will be called).
-                return;
-            }
 
+            int gameId = (int)Context.Items["gameId"];
+            string groupName = gameId.ToString();
             Game game;
 
             lock (Program.ActiveGames)
@@ -201,7 +193,8 @@ namespace DictionaryGame
                 await SendUpdateRoundAsync(gameId, new
                 {
                     stepId = (int)RoundState.Vote,
-                    responses = game.Round.Responses
+                    responses = game.Round.Responses,
+                    dictDef = game.Round.DictDef
                 });
             }
         }
@@ -211,7 +204,7 @@ namespace DictionaryGame
             await Clients.Group(gameId.ToString()).SendAsync("updateRound", args);
         }
 
-        // TODO: implement submitDictDef
+        // TODO: implement submitVote and SubmitVoteIt!
         // Then implement the next screen!
 
     }
