@@ -9,7 +9,9 @@ using Microsoft.Extensions.Configuration;
 
 namespace DictionaryGame
 {
-
+    /// <summary>
+    /// Hub for communication with game clients. Includes most in-game logic.
+    /// </summary>
     public class GameHub : Hub
     {
         public async Task SendPlayerList(int gameId)
@@ -179,7 +181,8 @@ namespace DictionaryGame
 
             bool allAnswersSubmitted = true;
 
-            //Check if all players have submitted a definition. If so, move to the next step!
+            // Check if all players have submitted a definition. If so, move to the next step!
+            // TODO: skip players automatically if they wait too long.
             foreach(var p in game.Players)
             {
                 if(p != game.Round.PlayerIt && !game.Round.Responses.ContainsKey(p.Name))
@@ -196,6 +199,136 @@ namespace DictionaryGame
                     responses = game.Round.Responses,
                     dictDef = game.Round.DictDef
                 });
+            }
+        }
+
+        public class SubmitVoteArgs
+        {
+            // Set to the user whose def they voted for. Set to game.Round.PlayerIt.Name if
+            // they voted for the dictionary definition.
+            public string UserName { get; set; }
+        }
+
+        public async Task SubmitVote(SubmitVoteArgs args)
+        {
+            int gameId = (int)Context.Items["gameId"];
+            Game game;
+
+            lock (Program.ActiveGames)
+            {
+                game = Program.ActiveGames[gameId];
+            }
+
+            Player player = GetCurrPlayer(game);
+
+            game.Round.Votes.Add(player.Name, args.UserName);
+
+            await CheckConcludeVoting(gameId, game);
+        }
+
+        public class SubmitVoteItArgs
+        {
+            public List<string> AccurateDefs { get; set; }
+        }
+
+        public async Task SubmitVoteIt(SubmitVoteItArgs args)
+        {
+            int gameId = (int)Context.Items["gameId"];
+            Game game;
+
+            lock (Program.ActiveGames)
+            {
+                game = Program.ActiveGames[gameId];
+            }
+
+            // TODO: assert that GetCurrPlayer(game) == game.Round.PlayerIt?
+            // TODO: assert game.Round.AccurateDefs is empty.
+            
+            game.Round.AccurateDefs.AddRange(args.AccurateDefs);
+            game.Round.AccurateDefsSubmitted = true;
+
+            await CheckConcludeVoting(gameId, game);
+        }
+
+        /// <summary>
+        /// Check if all votes have been placed; if so, calculate points for the round
+        /// and move on. Extracted as separate method since it should be run after
+        /// SubmitVote and SubmitVoteIt.
+        /// </summary>
+        private async Task CheckConcludeVoting(int gameId, Game game)
+        {
+            bool allVotesSubmitted = game.Round.AccurateDefsSubmitted;
+
+            if (allVotesSubmitted)
+            {
+                // Check if all players have submitted a definition. If so, move to the next step!
+                // TODO: skip players automatically if they wait too long.
+                foreach (var p in game.Players)
+                {
+                    if (p != game.Round.PlayerIt && !game.Round.Votes.ContainsKey(p.Name))
+                    {
+                        allVotesSubmitted = false;
+                    }
+                }
+            }
+
+
+            if (allVotesSubmitted)
+            {
+                var round = game.Round;
+
+                // If this remains false and round.AccurateDefs is empty, then PlayerIt
+                // is awarded Points.UnguessableWord.
+                bool someoneVotedAccurate = false;
+
+                //Calculate points earned.
+                foreach(var p in game.Players)
+                {
+                    if (p == round.PlayerIt) continue; // PlayerIt doesn't earn these points.
+
+                    int points = 0;
+                    if(round.AccurateDefs.Contains(p.Name))
+                    {
+                        points += Points.AccurateDef;
+                    }
+
+                    var votedFor = round.Votes[p.Name];
+                    if(votedFor == round.PlayerIt.Name || round.AccurateDefs.Contains(votedFor))
+                    {
+                        points += Points.AccurateVote;
+                        someoneVotedAccurate = true;
+                    }
+
+                    int votedForMe = round.Votes.Count((v) => v.Value == p.Name);
+                    points += Points.VotedForMe * votedForMe;
+
+                    if(points > 0)
+                    {
+                        round.PointsAwarded.Add(p.Name, points);
+                        p.Points += points;
+                    }
+                }
+
+                // Award Points.UnguessableWord if noone guessed the correct definition.
+                if(round.AccurateDefs.Count == 0 && !someoneVotedAccurate)
+                {
+                    round.PointsAwarded.Add(round.PlayerIt.Name, Points.UnguessableWord);
+                    round.PlayerIt.Points += Points.UnguessableWord;
+                }
+
+
+                // TODO: update Round.RoundState. Send the entire Round?
+
+                await SendUpdateRoundAsync(gameId, new
+                {
+                    stepId = (int)RoundState.Review,
+                    responses = game.Round.Responses,
+                    accurateDefs = game.Round.AccurateDefs,
+                    votes = game.Round.Votes,
+                    pointsAwarded = game.Round.PointsAwarded
+                });
+
+                await SendPlayerList(gameId);
             }
         }
 

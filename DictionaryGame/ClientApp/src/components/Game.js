@@ -111,18 +111,14 @@ export function Game(props) {
         hubConnection.invoke("submitDef", { Definition: def });
     }
 
-    function handleSubmitVote(vote) {
-        const args = (vote === "def") ? {
-            VoteDef: true,
-            UserName: ""
-        } : {
-            VoteDef: false,
-            UserName: vote
-        };
-
-        hubConnection.invoke("submitVote", args);
+    // Players vote for the definition they think is correct. If they get it right, they get
+    // points. If not, the player whose def they voted for gets points.
+    function handleSubmitVote(userName) {
+        hubConnection.invoke("submitVote", { UserName: userName });
     }
 
+    // Player that's "it" chooses any definitions which are accurate to the dictionary
+    // definition, and those players get points--as do any players who voted for them.
     function handleSubmitVoteIt(accurateDefs) {
         hubConnection.invoke("submitVoteIt", { AccurateDefs: accurateDefs });
     }

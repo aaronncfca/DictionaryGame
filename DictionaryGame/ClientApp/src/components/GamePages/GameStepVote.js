@@ -11,7 +11,7 @@ export function GameStepVote({ user, playerIt, responses, dictDef, ...props }) {
         const options = [];
 
         if (user.userName !== playerIt) {
-            tmp["dct"] = dictDef; // Add the dictionary definition
+            tmp[playerIt] = dictDef; // Add the dictionary definition, under playerIt's username.
             delete tmp[user.userName]; // Delete this user's definition.
         }
 
