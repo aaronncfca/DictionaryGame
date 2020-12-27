@@ -5,6 +5,7 @@ import { GameStepLobby } from "./GamePages/GameStepLobby.js"
 import { GameStepGetDict } from "./GamePages/GameStepGetDict.js"
 import { GameStepGetDefs } from "./GamePages/GameStepGetDefs.js"
 import { GameStepVote } from "./GamePages/GameStepVote.js"
+import { GameStepReview } from "./GamePages/GameStepReview.js"
 import * as signalR from "@microsoft/signalr";
 
 var tempvar = 0;
@@ -123,6 +124,10 @@ export function Game(props) {
         hubConnection.invoke("submitVoteIt", { AccurateDefs: accurateDefs });
     }
 
+    function handleDoneReviewing() {
+        hubConnection.invoke("submitDoneReviewing");
+    }
+
     function renderGamePage() {
         switch (round.stepId) {
             case 0:
@@ -140,8 +145,12 @@ export function Game(props) {
                         responses={round.responses}
                         onSubmitVote={handleSubmitVote} onSubmitVoteIt={handleSubmitVoteIt} />
                 );
-            //case 4:
-            //    return (<GameStepReview />);
+            case 4:
+                return (
+                    <GameStepReview playerIt={round.playerIt} word={round.word} dictDef={round.dictDef}
+                        responses={round.responses} votes={round.votes} accurateDefs={round.accurateDefs}
+                        onDoneReviewing={handleDoneReviewing}/>
+                );
             default:
                 console.error("Invalid step ID:" + round.stepId);
                 return "Error!";

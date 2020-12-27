@@ -332,6 +332,40 @@ namespace DictionaryGame
             }
         }
 
+        public async Task SubmitDoneReviewing()
+        {
+            int gameId = (int)Context.Items["gameId"];
+            Game game;
+
+            lock (Program.ActiveGames)
+            {
+                game = Program.ActiveGames[gameId];
+            }
+
+            Player player = GetCurrPlayer(game);
+
+            game.Round.DoneReviewing.Add(player);
+
+            bool allPlayersDone = true;
+
+            // Check if all players have submitted a definition. If so, move to the next step!
+            // TODO: skip players automatically if they wait too long.
+            foreach (var p in game.Players)
+            {
+                if (!game.Round.DoneReviewing.Contains(p))
+                {
+                    allPlayersDone = false;
+                }
+            }
+
+            if (allPlayersDone)
+            {
+                StartGame(); //Start a new game!
+                // TODO: Keep track of the round number and show that.
+            }
+
+        }
+
         private async Task SendUpdateRoundAsync(int gameId, object args)
         {
             await Clients.Group(gameId.ToString()).SendAsync("updateRound", args);

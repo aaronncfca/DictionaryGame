@@ -24,6 +24,7 @@ namespace DictionaryGame.Models
             AccurateDefs = new List<string>();
             AccurateDefsSubmitted = false;
             PointsAwarded = new Dictionary<string, int>();
+            DoneReviewing = new List<Player>();
         }
 
         public Player PlayerIt { get; private set; }
@@ -76,5 +77,7 @@ namespace DictionaryGame.Models
         /// </summary>
         public Dictionary<string, int> PointsAwarded { get; private set; }
         
+        
+        public List<Player> DoneReviewing { get; private set; }
     }
 }

@@ -54,6 +54,10 @@ namespace DictionaryGame.Models
                 // Wrap around to first player.
                 _PlayerIt = Players.First;
             }
+            else
+            {
+                _PlayerIt = _PlayerIt.Next;
+            }
 
             Round = new Round(_PlayerIt.Value);
             History.AddLast(Round);
