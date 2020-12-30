@@ -17,10 +17,11 @@ namespace DictionaryGame.Models
 
     public class Round
     {
-        public Round(Player playerIt)
+        public Round(Player playerIt, int roundNum)
         {
             PlayerIt = playerIt;
             RoundState = RoundState.Lobby;
+            RoundNum = roundNum;
             Responses = new Dictionary<string, string>();
             Votes = new Dictionary<string, string>();
             AccurateDefs = new List<string>();
@@ -31,6 +32,8 @@ namespace DictionaryGame.Models
 
         public Player PlayerIt { get; private set; }
         public RoundState RoundState { get; set; }
+
+        public int RoundNum { get; private set; }
 
         /// <summary>
         /// The word that the players are trying to define, specified by PlayerIt.

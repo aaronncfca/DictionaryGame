@@ -114,7 +114,7 @@ namespace DictionaryGame
         }
 
 
-        public async Task StartGame() //TODO: rename StartRound . . . no, extract StartRound.
+        public async Task StartGame()
         {
             int gameId = (int) Context.Items["gameId"];
             Game game;
@@ -124,6 +124,11 @@ namespace DictionaryGame
                 game = Program.ActiveGames[gameId];
             }
 
+            await StartNewRound(gameId, game);
+        }
+
+        private async Task StartNewRound(int gameId, Game game)
+        {
             game.NewRound();
 
             game.Round.RoundState = RoundState.GetDict;
@@ -341,7 +346,7 @@ namespace DictionaryGame
 
             if (allPlayersDone)
             {
-                await StartGame(); //Start a new game!
+                await StartNewRound(gameId, game);
                 // TODO: Keep track of the round number and show that.
             }
 
@@ -349,13 +354,8 @@ namespace DictionaryGame
 
         private async Task SendUpdateRoundAsync(int gameId, Round round)
         {
-            // TODO: send the entire Round. This solves the problem of stale Round data on new round
-            // and simplifies the code.
             await Clients.Group(gameId.ToString()).SendAsync("updateRound", round);
         }
-
-        // TODO: implement submitVote and SubmitVoteIt!
-        // Then implement the next screen!
 
     }
 }

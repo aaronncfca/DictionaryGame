@@ -171,6 +171,9 @@ export function Game(props) {
                 :
                 <div>
                     <h4>Game: {gameName}</h4>
+                    {round.roundNum &&
+                        <h5>Round {round.roundNum}</h5>
+                    }
                     <div className="container">
                         <div className="row">
                             <div className="col">
