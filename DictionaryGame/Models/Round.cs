@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace DictionaryGame.Models
@@ -19,6 +20,7 @@ namespace DictionaryGame.Models
         public Round(Player playerIt)
         {
             PlayerIt = playerIt;
+            RoundState = RoundState.Lobby;
             Responses = new Dictionary<string, string>();
             Votes = new Dictionary<string, string>();
             AccurateDefs = new List<string>();
@@ -70,6 +72,7 @@ namespace DictionaryGame.Models
         /// Set when AccurateDefs is set. This is necessary because AccurateDefs may
         /// remain empty.
         /// </summary>
+        [JsonIgnore]
         public bool AccurateDefsSubmitted { get; internal set; }
 
         /// <summary>
@@ -77,7 +80,10 @@ namespace DictionaryGame.Models
         /// </summary>
         public Dictionary<string, int> PointsAwarded { get; private set; }
         
-        
+        /// <summary>
+        /// Keeps track of which players have clicked "done" on the Review screen.
+        /// </summary>
+        [JsonIgnore]
         public List<Player> DoneReviewing { get; private set; }
     }
 }

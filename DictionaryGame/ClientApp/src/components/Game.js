@@ -17,13 +17,17 @@ export function Game(props) {
     const [gameName, setGameName] = useState('');
     const [players, setPlayers] = useState([]);
     // TODO: rename round, setRound
-    const [round, setRound] = useState({
-        stepId: 0,  //0 = not started; awaiting players
-                    // 1 = Acquiring word and dictionary def
-                    // 2 = Collect defs
-                    // 3 = Vote on defs
-                    // 4 = Display answers and scores
-        playerIt: ""
+    const [round, setRound] = useState({ // See Round.cs
+        roundState: 0,  // 0 = not started; awaiting players
+                        // 1 = Acquiring word and dictionary def
+                        // 2 = Collect defs
+                        // 3 = Vote on defs
+                        // 4 = Display answers and scores
+        playerIt: "", // Username of the player who is "it" this round
+        responses: {},
+        votes: {},
+        accurateDefs: [],
+        pointsAwarded: {}
     });
     const { user } = useContext(UserContext);
 
@@ -75,11 +79,9 @@ export function Game(props) {
             setPlayers(_players);
         });
 
-        // Called to update round properties whenever we advance to a new step.
+        // Called to update round properties whenever we advance to a new RoundState.
         hubConnection.on("updateRound", (args) => {
-            // Update with a function, since scope variables should not be accessed
-            // from within useEffectOnce.
-            setRound((round) => { return { ...round, ...args } });
+            setRound({ ...args, playerIt: args.playerIt.name });
         });
 
         return () => {
@@ -129,7 +131,7 @@ export function Game(props) {
     }
 
     function renderGamePage() {
-        switch (round.stepId) {
+        switch (round.roundState) {
             case 0:
                 return (<GameStepLobby user={user} onStartGame={handleStartGame} />);
             case 1:
@@ -152,7 +154,7 @@ export function Game(props) {
                         onDoneReviewing={handleDoneReviewing}/>
                 );
             default:
-                console.error("Invalid step ID:" + round.stepId);
+                console.error("Invalid roundState:" + round.roundState);
                 return "Error!";
         }
     }

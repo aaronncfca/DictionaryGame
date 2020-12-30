@@ -114,7 +114,7 @@ namespace DictionaryGame
         }
 
 
-        public async Task StartGame() //TODO: rename StartRound
+        public async Task StartGame() //TODO: rename StartRound . . . no, extract StartRound.
         {
             int gameId = (int) Context.Items["gameId"];
             Game game;
@@ -126,11 +126,8 @@ namespace DictionaryGame
 
             game.NewRound();
 
-            await SendUpdateRoundAsync(gameId, new
-            {
-                stepId = (int)RoundState.GetDict,
-                playerIt = game.Round.PlayerIt.Name
-            });
+            game.Round.RoundState = RoundState.GetDict;
+            await SendUpdateRoundAsync(gameId, game.Round);
         }
 
         public class SubmitDictDefArgs
@@ -152,11 +149,8 @@ namespace DictionaryGame
             game.Round.Word = args.Word;
             game.Round.DictDef = args.Definition;
 
-            await SendUpdateRoundAsync(gameId, new
-            {
-                stepId = (int)RoundState.GetDefs,
-                word = game.Round.Word
-            });
+            game.Round.RoundState = RoundState.GetDefs;
+            await SendUpdateRoundAsync(gameId, game.Round);
 
         }
 
@@ -193,12 +187,8 @@ namespace DictionaryGame
 
             if(allAnswersSubmitted)
             {
-                await SendUpdateRoundAsync(gameId, new
-                {
-                    stepId = (int)RoundState.Vote,
-                    responses = game.Round.Responses,
-                    dictDef = game.Round.DictDef
-                });
+                game.Round.RoundState = RoundState.Vote;
+                await SendUpdateRoundAsync(gameId, game.Round);
             }
         }
 
@@ -316,17 +306,8 @@ namespace DictionaryGame
                     round.PlayerIt.Points += Points.UnguessableWord;
                 }
 
-
-                // TODO: update Round.RoundState. Send the entire Round?
-
-                await SendUpdateRoundAsync(gameId, new
-                {
-                    stepId = (int)RoundState.Review,
-                    responses = game.Round.Responses,
-                    accurateDefs = game.Round.AccurateDefs,
-                    votes = game.Round.Votes,
-                    pointsAwarded = game.Round.PointsAwarded
-                });
+                game.Round.RoundState = RoundState.Review;
+                await SendUpdateRoundAsync(gameId, game.Round);
 
                 await SendPlayerList(gameId);
             }
@@ -360,15 +341,17 @@ namespace DictionaryGame
 
             if (allPlayersDone)
             {
-                StartGame(); //Start a new game!
+                await StartGame(); //Start a new game!
                 // TODO: Keep track of the round number and show that.
             }
 
         }
 
-        private async Task SendUpdateRoundAsync(int gameId, object args)
+        private async Task SendUpdateRoundAsync(int gameId, Round round)
         {
-            await Clients.Group(gameId.ToString()).SendAsync("updateRound", args);
+            // TODO: send the entire Round. This solves the problem of stale Round data on new round
+            // and simplifies the code.
+            await Clients.Group(gameId.ToString()).SendAsync("updateRound", round);
         }
 
         // TODO: implement submitVote and SubmitVoteIt!
