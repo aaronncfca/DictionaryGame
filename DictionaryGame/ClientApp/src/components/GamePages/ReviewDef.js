@@ -18,7 +18,7 @@ export function ReviewDef({ response, userName, accurate, votedFor}) {
                         {votedFor.map((voter, i) => (       //List the names of those who voted for this def
                             <React.Fragment key={voter}>
                                 {voter}
-                                {i !== (votedFor.length - 1) &&   //Add a comma between names
+                                {i < votedFor.length &&     //Add a comma between names
                                     <span>, </span>
                                 }
                             </React.Fragment>

@@ -91,7 +91,7 @@ export function JoinGame(props) {
                         Username must be 4 to 49 characters, letters and numbers only.
                     </div>
                 </div>
-                <button className="btn btn-primary" type="submit">Create Game</button>
+                <button className="btn btn-primary" type="submit">Join Game</button>
             </form>
         </div>
     );
