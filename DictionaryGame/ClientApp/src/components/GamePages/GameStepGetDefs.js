@@ -1,6 +1,4 @@
-﻿import React, { useState, useContext } from 'react';
-import { useHistory } from 'react-router-dom'
-import { UserContext } from "../../UserContext.js"
+﻿import React, { useState } from 'react';
 
 
 export function GameStepGetDefs({ user, playerIt, ...props }) {

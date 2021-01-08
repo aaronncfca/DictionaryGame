@@ -1,4 +1,4 @@
-﻿import React, { useState, useContext } from 'react';
+﻿import React, { useState } from 'react';
 import { ReviewDef } from "./ReviewDef.js";
 
 
@@ -17,7 +17,7 @@ export function GameStepReview({ playerIt, responses, dictDef, accurateDefs, vot
 
             {Object.keys(responses).map((userName, i) => (
                 userName === playerIt || // Exclude playerIt from the list of player defs.
-                    <ReviewDef key={i} response={responses[userName]} userName={userName}
+                <ReviewDef key={userName} response={responses[userName]} userName={userName}
                     accurate={accurateDefs.indexOf(userName) >= 0}
                     votedFor={Object.keys(votes).filter((v) => (votes[v] === userName))} />
             ))}

@@ -1,10 +1,8 @@
-﻿import React, { useState, useContext } from 'react';
+﻿import React, { useState } from 'react';
 import { VoteOption } from "./VoteOption.js";
 
 
 export function GameStepVote({ user, playerIt, responses, dictDef, ...props }) {
-    const [def, setDef] = useState("");
-    const [validated, setValidated] = useState(false);
     const [submitted, setSubmitted] = useState(false);
     const [options] = useState(() => {
         const tmp = { ...responses };
@@ -45,6 +43,7 @@ export function GameStepVote({ user, playerIt, responses, dictDef, ...props }) {
         if (user.userName === playerIt) {
             props.onSubmitVoteIt(accurateDefs);
         } else {
+            // TODO: enure a definition has been chosen?
             props.onSubmitVote(selectedDef);
         }
 

@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect, useContext } from 'react';
+﻿import React, { useState, useContext } from 'react';
 import { UserContext } from "../UserContext.js";
 import { useEffectOnce } from "../hooks/UseEffectOnce.js"
 import { GameStepLobby } from "./GamePages/GameStepLobby.js"
@@ -7,8 +7,6 @@ import { GameStepGetDefs } from "./GamePages/GameStepGetDefs.js"
 import { GameStepVote } from "./GamePages/GameStepVote.js"
 import { GameStepReview } from "./GamePages/GameStepReview.js"
 import * as signalR from "@microsoft/signalr";
-
-var tempvar = 0;
 
 export function Game(props) {
     const gameId = props.match.params.id;
