@@ -1,0 +1,12 @@
+.playerList {
+    
+}
+
+    .playerList .thisPlayer {
+        color: dodgerblue
+    }
+
+    .playerList .points {
+        color: darkslategrey
+    }
+

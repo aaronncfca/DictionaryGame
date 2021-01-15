@@ -8,6 +8,8 @@ import { GameStepVote } from "./GamePages/GameStepVote.js"
 import { GameStepReview } from "./GamePages/GameStepReview.js"
 import * as signalR from "@microsoft/signalr";
 
+import css from "./Game.module.css";
+
 export function Game(props) {
     const gameId = props.match.params.id;
 
@@ -176,11 +178,11 @@ export function Game(props) {
                         <div className="row">
                             <div className="col">
                                 <h3>Players</h3>
-                                <ul>
+                                <ul className={css.playerList}>
                                     {players.map((player) => (
                                         <li key={player.name}
-                                            className={user.userName.normalize() === player.name.normalize() ? "text-primary" : "" }>
-                                            {player.name} ({player.points} points)
+                                            className={user.userName.normalize() === player.name.normalize() ? css.thisPlayer : ""}>
+                                            {player.name} <span className={css.points}>({player.points} points)</span>
                                         </li>
                                     ))}
                                 </ul>
