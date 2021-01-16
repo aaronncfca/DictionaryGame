@@ -28,7 +28,7 @@ export function GameStepGetDict({ user, playerIt, ...props }) {
             {user.userName === playerIt ?
                 <div>
                     <h2>You're up!</h2>
-                    <p>Please look up a word in the dictonary. Type in the word and the definition below.</p>
+                    <p>Please look up a nice obscure word in the dictonary. Type in the word and the definition below.</p>
                     <div>
                         <form noValidate className={validated ? "was-validated" : ""} onSubmit={handleSubmit}>
                             <div className="form-group">

@@ -160,7 +160,7 @@ export function Game(props) {
     }
 
     return (
-        <div className={user.isHost ? "player-is-host" : ""}>
+        <div className={(user.isHost ? "player-is-host" : "") + " pt-4"}>
             {isLoading ?
                 <div className="d-flex justify-content-center">
                     <div className="spinner-border" role="status">
@@ -175,7 +175,7 @@ export function Game(props) {
                     }
                     <div className="container">
                         <div className="row">
-                            <div className="col">
+                            <div className="col-md-4">
                                 <h3>Players</h3>
                                 <ul className={css.playerList}>
                                     {players.map((player) => (
@@ -186,7 +186,7 @@ export function Game(props) {
                                     ))}
                                 </ul>
                             </div>
-                            <div className="col">
+                            <div className="col-md-8">
                                 { renderGamePage() }
                             </div>
                         </div>
