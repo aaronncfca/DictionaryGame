@@ -161,7 +161,6 @@ export function Game(props) {
 
     return (
         <div className={user.isHost ? "player-is-host" : ""}>
-            <h1>Welcome to the Dictionary Game!</h1>
             {isLoading ?
                 <div className="d-flex justify-content-center">
                     <div className="spinner-border" role="status">

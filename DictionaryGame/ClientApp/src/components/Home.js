@@ -1,26 +1,53 @@
 import React, { Component } from 'react';
 
-export class Home extends Component {
-  static displayName = Home.name;
+// TODO: move content to a "Rules" component that can be reused and shown in-game.
 
-  render () {
-    return (
-      <div>
-        <h1>Hello, world!</h1>
-        <p>Welcome to your new single-page application, built with:</p>
-        <ul>
-          <li><a href='https://get.asp.net/'>ASP.NET Core</a> and <a href='https://msdn.microsoft.com/en-us/library/67ef8sbd.aspx'>C#</a> for cross-platform server-side code</li>
-          <li><a href='https://facebook.github.io/react/'>React</a> for client-side code</li>
-          <li><a href='http://getbootstrap.com/'>Bootstrap</a> for layout and styling</li>
-        </ul>
-        <p>To help you get started, we have also set up:</p>
-        <ul>
-          <li><strong>Client-side navigation</strong>. For example, click <em>Counter</em> then <em>Back</em> to return here.</li>
-          <li><strong>Development server integration</strong>. In development mode, the development server from <code>create-react-app</code> runs in the background automatically, so your client-side resources are dynamically built on demand and the page refreshes when you modify any file.</li>
-          <li><strong>Efficient production builds</strong>. In production mode, development-time features are disabled, and your <code>dotnet publish</code> configuration produces minified, efficiently bundled JavaScript files.</li>
-        </ul>
-        <p>The <code>ClientApp</code> subdirectory is a standard React application based on the <code>create-react-app</code> template. If you open a command prompt in that directory, you can run <code>npm</code> commands such as <code>npm test</code> or <code>npm install</code>.</p>
-      </div>
-    );
-  }
+export class Home extends Component {
+    static displayName = Home.name;
+
+    render() {
+        return (
+            <div>
+                <h1>The Dictionary Game</h1>
+                <p>Welcome to the dictionary game! This is a classic guess-the-word game. Similar copyrighted games that implement the same concept include Balderdash and Fibber.</p>
+                <p>This is a great game for videoconference parties or around the table.</p>
+                <h2>What you need:</h2>
+                <ul>
+                    <li><b>3+ players.</b> There is no limit to the number of players, but you'll need at least 3 for it to be fun!</li>
+                    <li><b>A dictionary.</b> What? You don't have one on your desk? Try <a href="https://randomword.com/">randomword.com</a> or look for words in your favorite online dictionary.</li>
+                </ul>
+                <h2>How to play:</h2>
+                <ul>
+                    <li>One person will be <i>it</i> each round. That person must find an obscure word in the dictionary and write its definition down.</li>
+                    <li>Then everyone will see that word and submit a definition for what they think it might mean (or whatever they want to say!).</li>
+                    <li>Once everyone submits their answers, they will then see all the answers, with the real definition mixed in, and guess which is correct.</li>
+                    <li>Meanwhile, the player who is <i>it</i> will review all the answers and mark any accurate definitions.</li>
+                </ul>
+
+                <h2>Points:</h2>
+                <p>Here's how you win the game! (pst, the game never ends, you all have to decide when you're done!). You get:</p>
+                <ul>
+                    <li><b>2 points</b> for submitting an accurate definition (the person who's <i>it</i> will determine)</li>
+                    <li><b>1 point</b> for every person who votes for your answer.</li>
+                    <li><b>1 point</b> if you vote for the actual definition of the word.</li>
+                    <li><b>3 points</b> if you're <i>it</i> and nobody guesses the real definition of the word.</li>
+                </ul>
+
+                <h2>Rules:</h2>
+                <ul>
+                    <li><b>Be clean.</b> This app doesn't filter language, so don't write something that you wouldn't say out loud to the other players.</li>
+                    <li><b>Be honest.</b> When you're <i>it</i>, you will have to choose which people got the definition right (this is app isn't smar enough to do it for you!). Be honest when you choose which answer(s) match the real definition.</li>
+                    <li><b>Don't refresh or navigate away.</b> If you do so, your browser will lose touch with the game and you'll be knocked out.</li>
+                </ul>
+                <h2>Known issues:</h2>
+                <ul>
+                    <li>If you refresh your browser or click away, you'll be disconnected from the game.</li>
+                    <li>If someone tries to join the game while it's in process, it will let them in and might mess things up.</li>
+                    <li>The game waits for all players to sumit their answers. There is no timer (yet) and no way (yet) to force it to skip someone. Which means that...</li>
+                    <li>If someone leaves the game at the wrong time, it may freeze everything because the game is waiting for them.</li>
+                    <li>There is no marked end to the game. You'll have to decide how long to play and then quit.</li>
+                </ul>
+            </div>
+        );
+    }
 }
