@@ -6,6 +6,7 @@ import { GameStepGetDict } from "./GamePages/GameStepGetDict.js"
 import { GameStepGetDefs } from "./GamePages/GameStepGetDefs.js"
 import { GameStepVote } from "./GamePages/GameStepVote.js"
 import { GameStepReview } from "./GamePages/GameStepReview.js"
+import { HelpTextModal } from "./HelpTextModal.js"
 import * as signalR from "@microsoft/signalr";
 
 import css from "./Game.module.css";
@@ -16,6 +17,8 @@ export function Game(props) {
     const [isLoading, setIsLoading] = useState(true);
     const [gameName, setGameName] = useState('');
     const [players, setPlayers] = useState([]);
+    const [helpModalOpen, setHelpModalOpen] = useState(false);
+
     // TODO: rename round, setRound
     const [round, setRound] = useState({ // See Round.cs
         roundState: 0,  // 0 = not started; awaiting players
@@ -185,6 +188,8 @@ export function Game(props) {
                                         </li>
                                     ))}
                                 </ul>
+                                <button className="btn btn-small btn-secondary" onClick={() => setHelpModalOpen(true)}>How to play</button>
+                                <HelpTextModal modalOpen={helpModalOpen} setModalOpen={setHelpModalOpen} />
                             </div>
                             <div className="col-md-8">
                                 { renderGamePage() }
