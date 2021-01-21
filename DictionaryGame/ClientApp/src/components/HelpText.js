@@ -6,7 +6,7 @@ export function HelpText() {
             <h2>What you need:</h2>
             <ul>
                 <li><b>3+ players.</b> There is no limit to the number of players, but you'll need at least 3 for it to be fun!</li>
-                <li><b>A dictionary.</b> What? You don't have one on your desk? Try <a href="https://randomword.com/">randomword.com</a> or look for words in your favorite online dictionary.</li>
+                <li><b>A dictionary.</b> What? You don't have one on your desk? Try <a href="https://randomword.com/" target="_blank" rel="noopener noreferrer">randomword.com</a> or look for words in your favorite online dictionary.</li>
             </ul>
             <h2>How to play:</h2>
             <ul>

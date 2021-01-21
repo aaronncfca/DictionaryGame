@@ -1,10 +1,12 @@
 ﻿import React, { useState } from 'react';
+import { RandomWordModal } from "./../RandomWordModal.js";
 
 
 export function GameStepGetDict({ user, playerIt, ...props }) {
     const [word, setWord] = useState("");
     const [def, setDef] = useState("");
     const [validated, setValidated] = useState(false);
+    const [rwModalOpen, setRwModalOpen] = useState(false);
 
     function handleSubmit(event) {
         const form = event.target;
@@ -29,6 +31,12 @@ export function GameStepGetDict({ user, playerIt, ...props }) {
                 <div>
                     <h2>You're up!</h2>
                     <p>Please look up a nice obscure word in the dictonary. Type in the word and the definition below.</p>
+                    <p>
+                        No dictionary on hand? Click below to find a word
+                        from <a href="https://randomword.com/" target="_blank" rel="noopener noreferrer">randomword.com</a>.
+                    </p>
+                    <button className="btn btn-small btn-secondary" onClick={() => setRwModalOpen(true)}>Find a word</button>
+                    <RandomWordModal modalOpen={rwModalOpen} setModalOpen={setRwModalOpen} />
                     <div>
                         <form noValidate className={validated ? "was-validated" : ""} onSubmit={handleSubmit}>
                             <div className="form-group">
