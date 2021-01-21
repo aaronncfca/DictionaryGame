@@ -1,18 +1,19 @@
 ﻿import React from 'react';
+import { Container, Row, Col } from 'reactstrap';
 
 import css from "./ReviewDef.module.css";
 
 export function ReviewDef({ response, userName, accurate, votedFor, realDef}) {
     return (
-        <div className="container">
-            <div className="row">
-                <div className="col-sm-8">
+        <Container>
+            <Row>
+                <Col sm="8">
                     <p><b>{userName}</b> put:</p>
                     {!realDef &&
                         <p><q>{response}</q></p>
                     }
-                </div>
-                <div className="col-sm-4">
+                </Col>
+                <Col sm="4">
                     {accurate &&
                         <p className={css.accurate}>Rated accurate!</p>
                     }
@@ -27,9 +28,9 @@ export function ReviewDef({ response, userName, accurate, votedFor, realDef}) {
                             </React.Fragment>
                         ))}
                         </p>
-                        }
-                </div>
-            </div>
-        </div>
+                    }
+                </Col>
+            </Row>
+        </Container>
     );
 }

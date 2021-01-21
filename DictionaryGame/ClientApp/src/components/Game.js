@@ -1,12 +1,13 @@
 ﻿import React, { useState, useContext } from 'react';
 import { UserContext } from "../UserContext.js";
-import { useEffectOnce } from "../hooks/UseEffectOnce.js"
-import { GameStepLobby } from "./GamePages/GameStepLobby.js"
-import { GameStepGetDict } from "./GamePages/GameStepGetDict.js"
-import { GameStepGetDefs } from "./GamePages/GameStepGetDefs.js"
-import { GameStepVote } from "./GamePages/GameStepVote.js"
-import { GameStepReview } from "./GamePages/GameStepReview.js"
-import { HelpTextModal } from "./HelpTextModal.js"
+import { Container, Col, Row, Button } from "reactstrap";
+import { useEffectOnce } from "../hooks/UseEffectOnce.js";
+import { GameStepLobby } from "./GamePages/GameStepLobby.js";
+import { GameStepGetDict } from "./GamePages/GameStepGetDict.js";
+import { GameStepGetDefs } from "./GamePages/GameStepGetDefs.js";
+import { GameStepVote } from "./GamePages/GameStepVote.js";
+import { GameStepReview } from "./GamePages/GameStepReview.js";
+import { HelpTextModal } from "./HelpTextModal.js";
 import * as signalR from "@microsoft/signalr";
 
 import css from "./Game.module.css";
@@ -30,7 +31,8 @@ export function Game(props) {
         responses: {},
         votes: {},
         accurateDefs: [],
-        pointsAwarded: {}
+        pointsAwarded: {},
+        roundNum: null
     });
     const { user } = useContext(UserContext);
 
@@ -176,9 +178,9 @@ export function Game(props) {
                     {round.roundNum &&
                         <h5>Round {round.roundNum}</h5>
                     }
-                    <div className="container">
-                        <div className="row">
-                            <div className="col-md-4">
+                    <Container>
+                        <Row>
+                            <Col md="4">
                                 <h3>Players</h3>
                                 <ul className={css.playerList}>
                                     {players.map((player) => (
@@ -188,14 +190,14 @@ export function Game(props) {
                                         </li>
                                     ))}
                                 </ul>
-                                <button className="btn btn-small btn-secondary" onClick={() => setHelpModalOpen(true)}>How to play</button>
+                                <Button color="secondary" onClick={() => setHelpModalOpen(true)}>How to play</Button>
                                 <HelpTextModal modalOpen={helpModalOpen} setModalOpen={setHelpModalOpen} />
-                            </div>
-                            <div className="col-md-8">
-                                { renderGamePage() }
-                            </div>
-                        </div>
-                    </div>
+                            </Col>
+                            <Col md="8">
+                                {renderGamePage()}
+                            </Col>
+                        </Row>
+                    </Container>
                 </div>
             }
         </div>
