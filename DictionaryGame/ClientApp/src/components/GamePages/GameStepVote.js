@@ -1,5 +1,6 @@
 ﻿import React, { useState } from 'react';
 import { VoteOption } from "./VoteOption.js";
+import { Button } from "reactstrap";
 
 
 export function GameStepVote({ user, playerIt, responses, dictDef, ...props }) {
@@ -91,8 +92,9 @@ export function GameStepVote({ user, playerIt, responses, dictDef, ...props }) {
                     </div>
                 </div >
             }
+            <div className="mt-4"></div>
             {!submitted ?
-                <button onClick={handleSubmitClicked}>Submit!</button>
+                <Button color="primary" block onClick={handleSubmitClicked}>Submit!</Button>
                 :
                 <p>Waiting for other players to respond...</p>
             }

@@ -1,4 +1,5 @@
 ﻿import React, { useState } from 'react';
+import { Button, Form, FormGroup, Input } from "reactstrap";
 
 
 export function GameStepGetDefs({ user, playerIt, ...props }) {
@@ -34,16 +35,14 @@ export function GameStepGetDefs({ user, playerIt, ...props }) {
                 : !submitted ?
                 <div>
                     <p>What could that mean?? Submit your definition here!</p>
-                    <div>
-                        <form noValidate className={validated ? "was-validated" : ""} onSubmit={handleSubmit}>
-                            <div className="form-group">
-                                <textarea className="form-control" type="" id="cg-def" name="definition" value={def}
-                                    onChange={(e) => setDef(e.target.value)} required />
-                            </div>
-                            <button>Submit!</button>
-                        </form>
-                    </div>
-                </div >
+                    <Form noValidate className={validated ? "was-validated" : ""} onSubmit={handleSubmit}>
+                        <FormGroup>
+                            <Input type="textarea" id="cg-def" name="definition" value={def}
+                                onChange={(e) => setDef(e.target.value)} required />
+                        </FormGroup>
+                        <Button color="primary" block>Submit!</Button>
+                    </Form>
+                </div>
                 :
                 <div>
                     <p>Got it!</p>

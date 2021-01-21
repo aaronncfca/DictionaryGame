@@ -1,5 +1,6 @@
 ﻿import React, { useState } from 'react';
 import { ReviewDef } from "./ReviewDef.js";
+import { Button } from "reactstrap";
 
 
 export function GameStepReview({ playerIt, responses, dictDef, accurateDefs, votes, ...props }) {
@@ -25,7 +26,7 @@ export function GameStepReview({ playerIt, responses, dictDef, accurateDefs, vot
                 votedFor={Object.keys(votes).filter((v) => (votes[v] === playerIt))} />
             
             {!submitted ?
-                <button onClick={handleSubmitClicked}>Done!</button>
+                <Button color="primary" block onClick={handleSubmitClicked}>Done!</Button>
                 :
                 <p>Waiting for other players...</p>
             }

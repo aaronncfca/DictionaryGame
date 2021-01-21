@@ -1,5 +1,5 @@
 ﻿import React from 'react';
-
+import { Button } from "reactstrap";
 
 export function VoteOption({response, selected, disabled, ...props }) {
 
@@ -12,9 +12,9 @@ export function VoteOption({response, selected, disabled, ...props }) {
     }
 
     return (
-        <button type="button" className={"btn btn-block mt-1 " + (selected ? "btn-primary" : "btn-outline-secondary")}
+        <Button block color={selected ? "primary" : "outline-secondary"}
             onClick={handleClick}>
             <q>{response}</q>
-        </button>
+        </Button>
     );
 }

@@ -1,4 +1,5 @@
 ﻿import React from 'react';
+import { Button } from "reactstrap";
 
 
 export function GameStepLobby(props) {
@@ -15,7 +16,7 @@ export function GameStepLobby(props) {
                         <li>Game name: <b>{user.gameName}</b></li>
                         <li>Game password: <b>{user.gamePassword}</b> </li>
                     </ul>
-                    <button onClick={props.onStartGame}>Start game!</button>
+                    <Button color="primary" block onClick={props.onStartGame}>Start game!</Button>
                 </div>
                 :
                 <div>

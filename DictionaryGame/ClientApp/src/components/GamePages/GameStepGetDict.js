@@ -1,5 +1,6 @@
 ﻿import React, { useState } from 'react';
 import { RandomWordModal } from "./../RandomWordModal.js";
+import { Button, Form, FormGroup, Label, Input, FormFeedback } from "reactstrap";
 
 
 export function GameStepGetDict({ user, playerIt, ...props }) {
@@ -35,28 +36,23 @@ export function GameStepGetDict({ user, playerIt, ...props }) {
                         No dictionary on hand? Click below to find a word
                         from <a href="https://randomword.com/" target="_blank" rel="noopener noreferrer">randomword.com</a>.
                     </p>
-                    <button className="btn btn-small btn-secondary" onClick={() => setRwModalOpen(true)}>Find a word</button>
+                    <Button color="secondary" onClick={() => setRwModalOpen(true)}>Find a word</Button>
                     <RandomWordModal modalOpen={rwModalOpen} setModalOpen={setRwModalOpen} />
-                    <div>
-                        <form noValidate className={validated ? "was-validated" : ""} onSubmit={handleSubmit}>
-                            <div className="form-group">
-                                <label htmlFor="gd-word">
-                                    The word:
-                                </label>
-                                <input className="form-control" type="text" id="gd-word" name="word" value={word} pattern=".{1,100}"
-                                    onChange={(e) => setWord(e.target.value)} required />
-                                <div className="invalid-feedback">
-                                    Word must be 1 to 100 characters long.
-                                </div>
-                            </div>
-                            <div className="form-group">
-                                <label htmlFor="cg-def">Dictionary definition:</label>
-                                <textarea className="form-control" type="" id="cg-def" name="definition" value={def}
-                                    onChange={(e) => setDef(e.target.value)} required />
-                            </div>
-                            <button >Submit!</button>
-                        </form>
-                    </div>
+                    <Form noValidate className={validated ? "was-validated" : ""} onSubmit={handleSubmit}
+                        className="mt-4">
+                        <FormGroup>
+                            <Label for="gd-word">The word:</Label>
+                            <Input type="text" id="gd-word" name="word" value={word} pattern=".{1,100}"
+                                onChange={(e) => setWord(e.target.value)} required />
+                            <FormFeedback>Word must be 1 to 100 characters long.</FormFeedback>
+                        </FormGroup>
+                        <FormGroup>
+                            <Label for="cg-def">Dictionary definition:</Label>
+                            <Input type="textarea" id="cg-def" name="definition" value={def}
+                                onChange={(e) => setDef(e.target.value)} required />
+                        </FormGroup>
+                        <Button color="primary" block>Submit!</Button>
+                    </Form>
                 </div>
                 :
                 <div>
