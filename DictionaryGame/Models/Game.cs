@@ -59,7 +59,7 @@ namespace DictionaryGame.Models
                 _PlayerIt = _PlayerIt.Next;
             }
 
-            int roundNum = (Round == null) ? 1 : Round.RoundNum;
+            int roundNum = (Round == null) ? 1 : Round.RoundNum + 1;
 
             Round = new Round(_PlayerIt.Value, roundNum);
             History.AddLast(Round);
