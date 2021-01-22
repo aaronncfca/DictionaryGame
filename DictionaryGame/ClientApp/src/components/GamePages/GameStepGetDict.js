@@ -38,8 +38,7 @@ export function GameStepGetDict({ user, playerIt, ...props }) {
                     </p>
                     <Button color="secondary" onClick={() => setRwModalOpen(true)}>Find a word</Button>
                     <RandomWordModal modalOpen={rwModalOpen} setModalOpen={setRwModalOpen} />
-                    <Form noValidate className={validated ? "was-validated" : ""} onSubmit={handleSubmit}
-                        className="mt-4">
+                    <Form noValidate className={(validated ? "was-validated" : "") + "mt-2"} onSubmit={handleSubmit}>
                         <FormGroup>
                             <Label for="gd-word">The word:</Label>
                             <Input type="text" id="gd-word" name="word" value={word} pattern=".{1,100}"

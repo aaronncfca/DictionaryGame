@@ -99,6 +99,7 @@ namespace DictionaryGame
             return AddPlayer(game, id, data, true);
         }
 
+        // TODO: remove this function (move back to locations) once HttpContext is removed.
         private IActionResult AddPlayer(Game game, int gameId, GameReqArgs data, bool isHost)
         { 
             var player = new Player(data.Username);
@@ -108,8 +109,15 @@ namespace DictionaryGame
             {
                 game.Host = player; //TODO: would probably be better to add an IsHost field to Player
             }
+            
+            // If the game is already in motion, let the player in after the end of this round.
+            if(game.Round != null && game.Round.RoundState != RoundState.Lobby)
+            {
+                player.IsPending = true;
+            }
 
             // Remember this player. TODO: use something better than HttpContext!
+            // TODO: remove this now that we are using the hub.
             HttpContext.Session.SetString(SessionPlayerName, data.Username);
             HttpContext.Session.SetInt32(SessionGameId, gameId);
 
@@ -153,9 +161,27 @@ namespace DictionaryGame
                 return Forbid("Incorrect password");
             }
 
-            if(game.Players.FirstOrDefault((entry) => entry.Name == data.Username) != null)
+            var samePlayer = game.Players.FirstOrDefault((entry) => entry.Name == data.Username);
+            if (samePlayer != null)
             {
-                return Conflict("A player by that name has aready joined");
+                if (samePlayer.IsActive == true)
+                {
+                    return Conflict("A player by that name has aready joined");
+                }
+                else
+                {
+                    // Special case: user is returning after getting disconnected.
+                    // NOTE: this allows a new person to sign in on top of the old
+                    // player just by using the same username.
+                    // Leave IsActive as false; GameHub will check it and fix things.
+
+                    // Remember this player. TODO: use something better than HttpContext!
+                    // TODO: remove this now that we are using the hub.
+                    HttpContext.Session.SetString(SessionPlayerName, data.Username);
+                    HttpContext.Session.SetInt32(SessionGameId, gameId);
+
+                    return Ok(gameId);
+                }
             }
 
             return AddPlayer(game, gameId, data, false);

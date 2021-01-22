@@ -24,6 +24,13 @@ namespace DictionaryGame.Models
         public string Password { get; private set; }
 
         public LinkedList<Player> Players { get; private set; }
+
+        public IEnumerable<Player> ActivePlayers
+        {
+            get {
+                return Players.Where((p) => (p.IsActive && !p.IsPending));
+            }
+        }
         
         // Quietly keep track of the player who's it as a linked list node so
         // we can access Next when it's time for a new round.
@@ -46,6 +53,12 @@ namespace DictionaryGame.Models
 
         public void NewRound()
         {
+            // Let in any pending players.
+            foreach (var p in Players)
+            {
+                p.IsPending = false;
+            }
+
             if (_PlayerIt == null || _PlayerIt.Next == null)
             {
                 // This should never be called if there are no players!

@@ -11,11 +11,24 @@ namespace DictionaryGame.Models
         {
             Name = name;
             Points = 0;
+            IsPending = false;
+            IsActive = true;
         }
 
 
         public string Name { get; private set; }
 
         public int Points { get; set; }
+
+        /// <summary>
+        /// True if the player joined mid-round and will be let in once
+        /// the next round starts.
+        /// </summary>
+        public bool IsPending { get; set; }
+
+        /// <summary>
+        /// True if the player is currently connected.
+        /// </summary>
+        public bool IsActive { get; set; }
     }
 }

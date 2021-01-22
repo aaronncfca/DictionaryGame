@@ -14,21 +14,6 @@ namespace DictionaryGame
     /// </summary>
     public class GameHub : Hub
     {
-        public async Task SendPlayerList(int gameId)
-        {
-            Game game;
-            bool success;
-
-            lock (Program.ActiveGames)
-            {
-                success = Program.ActiveGames.TryGetValue(gameId, out game);
-            }
-
-            if (!success) throw new ArgumentException("Game not found!");
-
-            await Clients.Group(gameId.ToString()).SendAsync("setPlayerList", game.Players);
-        }
-
         public class JoinGameReqArgs
         {
             public int GameId { get; set; }
@@ -41,13 +26,32 @@ namespace DictionaryGame
         public async Task JoinGame(JoinGameReqArgs args)
         {
             string groupName = args.GameId.ToString();
+            int gameId = args.GameId;
 
-            Context.Items.Add("gameId", args.GameId);
+            Context.Items.Add("gameId", gameId);
             Context.Items.Add("username", args.Username);
+
+            Game game;
+
+            lock (Program.ActiveGames)
+            {
+                game = Program.ActiveGames[gameId];
+            }
+
+            var player = GetCurrPlayer(game);
+
 
             await Groups.AddToGroupAsync(Context.ConnectionId, groupName);
 
-            await SendPlayerList(args.GameId);
+            if (!player.IsActive)
+            {
+                // This indicates that the player is reconnecting mid-round. Let's try to get them
+                // back into the round.
+                player.IsActive = true;
+                await Clients.Client(Context.ConnectionId).SendAsync("updateRound", game.Round);
+            }
+
+            await SendPlayerList(gameId, game.Players);
         }
 
         private Player GetCurrPlayer(Game game)
@@ -95,22 +99,23 @@ namespace DictionaryGame
 
             Player player = GetCurrPlayer(game);
 
-            game.Players.Remove(player);
+            player.IsActive = false;
 
-            // Delete the game if no players remain.
+            // Delete the game if no players remain active.
             lock(Program.ActiveGames)
             {
-                if(game.Players.First == null)
+                if(game.ActivePlayers.Count() == 0)
                 {
                     Program.ActiveGames.Remove(gameId);
                 }
             }
 
             // End the round if the player is "it." 
+            // TODO!!!
 
             await Groups.RemoveFromGroupAsync(Context.ConnectionId, groupName);
 
-            await SendPlayerList(gameId);
+            await SendPlayerList(gameId, game.Players);
         }
 
 
@@ -132,6 +137,9 @@ namespace DictionaryGame
             game.NewRound();
 
             game.Round.RoundState = RoundState.GetDict;
+
+            // Some players may have been let in from pending status, so check that.
+            await SendPlayerList(gameId, game.Players);
             await SendUpdateRoundAsync(gameId, game.Round);
         }
 
@@ -182,7 +190,7 @@ namespace DictionaryGame
 
             // Check if all players have submitted a definition. If so, move to the next step!
             // TODO: skip players automatically if they wait too long.
-            foreach(var p in game.Players)
+            foreach(var p in game.ActivePlayers)
             {
                 if(p != game.Round.PlayerIt && !game.Round.Responses.ContainsKey(p.Name))
                 {
@@ -258,7 +266,7 @@ namespace DictionaryGame
             {
                 // Check if all players have submitted a definition. If so, move to the next step!
                 // TODO: skip players automatically if they wait too long.
-                foreach (var p in game.Players)
+                foreach (var p in game.ActivePlayers)
                 {
                     if (p != game.Round.PlayerIt && !game.Round.Votes.ContainsKey(p.Name))
                     {
@@ -280,6 +288,8 @@ namespace DictionaryGame
                 foreach(var p in game.Players)
                 {
                     if (p == round.PlayerIt) continue; // PlayerIt doesn't earn these points.
+                    if (p.IsPending) continue; // Nor pending players (obviously).
+                    // However, we do include inactive players just in case they contributed something.
 
                     int points = 0;
                     if(round.AccurateDefs.Contains(p.Name))
@@ -287,11 +297,14 @@ namespace DictionaryGame
                         points += Points.AccurateDef;
                     }
 
-                    var votedFor = round.Votes[p.Name];
-                    if(votedFor == round.PlayerIt.Name || round.AccurateDefs.Contains(votedFor))
+                    if (round.Votes.ContainsKey(p.Name))
                     {
-                        points += Points.AccurateVote;
-                        someoneVotedAccurate = true;
+                        var votedFor = round.Votes[p.Name];
+                        if (votedFor == round.PlayerIt.Name || round.AccurateDefs.Contains(votedFor))
+                        {
+                            points += Points.AccurateVote;
+                            someoneVotedAccurate = true;
+                        }
                     }
 
                     int votedForMe = round.Votes.Count((v) => v.Value == p.Name);
@@ -314,7 +327,7 @@ namespace DictionaryGame
                 game.Round.RoundState = RoundState.Review;
                 await SendUpdateRoundAsync(gameId, game.Round);
 
-                await SendPlayerList(gameId);
+                await SendPlayerList(gameId, game.Players);
             }
         }
 
@@ -336,7 +349,7 @@ namespace DictionaryGame
 
             // Check if all players have submitted a definition. If so, move to the next step!
             // TODO: skip players automatically if they wait too long.
-            foreach (var p in game.Players)
+            foreach (var p in game.ActivePlayers)
             {
                 if (!game.Round.DoneReviewing.Contains(p))
                 {
@@ -347,9 +360,14 @@ namespace DictionaryGame
             if (allPlayersDone)
             {
                 await StartNewRound(gameId, game);
-                // TODO: Keep track of the round number and show that.
             }
 
+        }
+
+
+        public async Task SendPlayerList(int gameId, LinkedList<Player> players)
+        {
+            await Clients.Group(gameId.ToString()).SendAsync("setPlayerList", players);
         }
 
         private async Task SendUpdateRoundAsync(int gameId, Round round)

@@ -7,6 +7,7 @@ import { GameStepGetDict } from "./GamePages/GameStepGetDict.js";
 import { GameStepGetDefs } from "./GamePages/GameStepGetDefs.js";
 import { GameStepVote } from "./GamePages/GameStepVote.js";
 import { GameStepReview } from "./GamePages/GameStepReview.js";
+import { UserPending } from "./GamePages/UserPending.js";
 import { HelpTextModal } from "./HelpTextModal.js";
 import * as signalR from "@microsoft/signalr";
 
@@ -16,6 +17,7 @@ export function Game(props) {
     const gameId = props.match.params.id;
 
     const [isLoading, setIsLoading] = useState(true);
+    const [isPending, setIsPending] = useState(false); // Set to true if we joined a game in process.
     const [gameName, setGameName] = useState('');
     const [players, setPlayers] = useState([]);
     const [helpModalOpen, setHelpModalOpen] = useState(false);
@@ -36,6 +38,8 @@ export function Game(props) {
     });
     const { user } = useContext(UserContext);
 
+    
+
     // Declare hubConnection as a state variable so it doesn't get re-initialized on rerender.
     const [hubConnection] = useState(() => {
         return new signalR.HubConnectionBuilder()
@@ -44,8 +48,14 @@ export function Game(props) {
             .build();
     });
 
+
     // Place game logic here which should only be executed once.
     useEffectOnce(() => {
+        // Get out quick if we don't have a valid connection to a game.
+        if (!user || user.gameId !== Number.parseInt(gameId) || !user.userName) {
+            return;
+        }
+
         fetch('/GameApi/Game/' + gameId).then((data) => {
             const jsonPromise = data.json();
             const hubPromise = hubConnection.start();
@@ -59,15 +69,14 @@ export function Game(props) {
                 console.log(hubConnection.connectionId);
 
                 const joinGameArgs = {
-                    GameId: user.gameId,
+                    GameId: Number.parseInt(gameId),
                     Username: user.userName
                 };
 
                 hubConnection.invoke("joinGame", joinGameArgs)
                     .then(() => {
                         console.log("successfully sent joinGame.")
-
-                        setIsLoading(false);
+                        // We will set isLoading to false once we get a call to setPlayerList.
                     })
                     .catch((e) => {
                         console.log(e.message)
@@ -82,6 +91,11 @@ export function Game(props) {
                 throw new Error("Invalid data received from setPlayerList hub connection!");
             }
             setPlayers(_players);
+
+            const p = _players.find((p) => (p.name === user.userName));
+            setIsPending(p.isPending);
+
+            setIsLoading(false);
         });
 
         // Called to update round properties whenever we advance to a new RoundState.
@@ -90,14 +104,15 @@ export function Game(props) {
         });
 
         return () => {
-            hubConnection.off("setPlayerList");
-            // Note This will automatically/forcefully remove the player from the game!
+            // Note This will set player as inactive, and they will be disconnected from the game.
+            // They may rejoin, however.
             // See GameHub.OnDisconnectAsync.
             hubConnection.stop(); 
         };
     }, []);
 
-    //TODO: better: get out of here to an error page; maybe use Error Boundaries.
+
+    //TODO: get out of here to an error page? maybe use Error Boundaries?
     if (!user || user.gameId !== Number.parseInt(gameId) || !user.userName) {
         return (
             <div>
@@ -136,6 +151,10 @@ export function Game(props) {
     }
 
     function renderGamePage() {
+        if (isPending) {
+            return (<UserPending />);
+        }
+
         switch (round.roundState) {
             case 0:
                 return (<GameStepLobby user={user} onStartGame={handleStartGame} />);
@@ -181,13 +200,17 @@ export function Game(props) {
                     <Container>
                         <Row>
                             <Col md="4">
+                                {/*TODO: new component for each player.*/}
                                 <h3>Players</h3>
                                 <ul className={css.playerList}>
                                     {players.map((player) => (
-                                        <li key={player.name}
-                                            className={user.userName.normalize() === player.name.normalize() ? css.thisPlayer : ""}>
-                                            {player.name} <span className={css.points}>({player.points} points)</span>
-                                        </li>
+                                        (!player.isActive || player.isPending) ?
+                                            <li key={player.name} className="text-muted">{player.name}</li>
+                                            :
+                                            <li key={player.name}
+                                                className={user.userName === player.name ? css.thisPlayer : ""}>
+                                                {player.name} <span className={css.points}>({player.points} points)</span>
+                                            </li>
                                     ))}
                                 </ul>
                                 <Button color="secondary" onClick={() => setHelpModalOpen(true)}>How to play</Button>
