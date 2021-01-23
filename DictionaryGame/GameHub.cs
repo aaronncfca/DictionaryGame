@@ -43,12 +43,11 @@ namespace DictionaryGame
 
             await Groups.AddToGroupAsync(Context.ConnectionId, groupName);
 
-            if (!player.IsActive)
+            // If the player is reconnecting mid - round try to get them straight
+            // into the round. Otherwise, they will join once the next round starts.
+            if (game.Round != null && !player.IsPending)
             {
-                // This indicates that the player is reconnecting mid-round. Let's try to get them
-                // back into the round.
-                player.IsActive = true;
-                await Clients.Client(Context.ConnectionId).SendAsync("updateRound", game.Round);
+                await SendUpdateRoundAsync(gameId, game.Round);
             }
 
             await SendPlayerList(gameId, game.Players);
@@ -110,12 +109,27 @@ namespace DictionaryGame
                 }
             }
 
-            // End the round if the player is "it." 
-            // TODO!!!
-
             await Groups.RemoveFromGroupAsync(Context.ConnectionId, groupName);
 
             await SendPlayerList(gameId, game.Players);
+
+            // End the round if the player is "it." 
+            if (game.Round != null && game.Round.RoundState != RoundState.Review
+                && game.Round.PlayerIt == player)
+            {
+                await SendMessage(gameId, $"Oops! {player.Name} has disconnected, and they were it! " +
+                    $"Cancelling this round and starting a new one.");
+
+                await StartNewRound(gameId, game);
+            }
+
+            // Let other players know if the host is gone.
+            else if ((game.Round == null || game.Round.RoundState == RoundState.Lobby)
+                && game.Host == player)
+            {
+                await SendMessage(gameId, $"Oops! {player.Name} has disconnected, and they were the host! " +
+                    $"Please leave this game and try creating or joining a new one.");
+            }
         }
 
 
@@ -364,8 +378,12 @@ namespace DictionaryGame
 
         }
 
+        private async Task SendMessage(int gameId, string message)
+        {
+            await Clients.Group(gameId.ToString()).SendAsync("showMessage", message);
+        }
 
-        public async Task SendPlayerList(int gameId, LinkedList<Player> players)
+        private async Task SendPlayerList(int gameId, LinkedList<Player> players)
         {
             await Clients.Group(gameId.ToString()).SendAsync("setPlayerList", players);
         }

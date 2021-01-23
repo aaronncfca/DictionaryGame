@@ -47,7 +47,7 @@ namespace DictionaryGame.Models
         public LinkedList<Round> History { get; private set; }
 
         /// <summary>
-        /// The current round.
+        /// The current round. Will be null until NewRound() has been called.
         /// </summary>
         public Round Round { get; private set; }
 
