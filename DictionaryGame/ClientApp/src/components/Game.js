@@ -1,6 +1,6 @@
 ﻿import React, { useState, useContext } from 'react';
 import { UserContext } from "../UserContext.js";
-import { Container, Col, Row, Button } from "reactstrap";
+import { Alert, Container, Col, Row, Button } from "reactstrap";
 import { useEffectOnce } from "../hooks/UseEffectOnce.js";
 import { GameStepLobby } from "./GamePages/GameStepLobby.js";
 import { GameStepGetDict } from "./GamePages/GameStepGetDict.js";
@@ -21,6 +21,7 @@ export function Game(props) {
     const [gameName, setGameName] = useState('');
     const [players, setPlayers] = useState([]);
     const [helpModalOpen, setHelpModalOpen] = useState(false);
+    const [message, setMessage] = useState("");
 
     // TODO: rename round, setRound
     const [round, setRound] = useState({ // See Round.cs
@@ -36,7 +37,7 @@ export function Game(props) {
         pointsAwarded: {},
         roundNum: null
     });
-    const { user } = useContext(UserContext);
+    const { user, setUser } = useContext(UserContext);
 
     
 
@@ -103,11 +104,28 @@ export function Game(props) {
             setRound({ ...args, playerIt: args.playerIt.name });
         });
 
+        hubConnection.on("showMessage", (message) => {
+            setMessage(message);
+        });
+
+        hubConnection.onclose((error) => {
+            let message = "Oops, you've been disonnected! Try joining again with the same username.";
+            if (error) {
+                message += "\nError details: " + error.message;
+            }
+
+            setMessage(message);
+        });
+
         return () => {
             // Note This will set player as inactive, and they will be disconnected from the game.
             // They may rejoin, however.
             // See GameHub.OnDisconnectAsync.
             hubConnection.stop(); 
+
+            // Alert the app to the fact that we've disconnected. (Important if the user clicked
+            // the back arrow.)
+            setUser({});
         };
     }, []);
 
@@ -217,6 +235,7 @@ export function Game(props) {
                                 <HelpTextModal modalOpen={helpModalOpen} setModalOpen={setHelpModalOpen} />
                             </Col>
                             <Col md="8">
+                                <Alert color="warning" isOpen={!!message} toggle={() => setMessage("")}>{message}</Alert>
                                 {renderGamePage()}
                             </Col>
                         </Row>

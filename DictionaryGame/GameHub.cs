@@ -129,6 +129,14 @@ namespace DictionaryGame
             {
                 await SendMessage(gameId, $"Oops! {player.Name} has disconnected, and they were the host! " +
                     $"Please leave this game and try creating or joining a new one.");
+
+                // Remove this game from the list of active ones. Since we are in Lobby mode
+                // and the host is the only one who can submit anything, this should not
+                // produce any errors.
+                lock (Program.ActiveGames)
+                {
+                    Program.ActiveGames.Remove(gameId);
+                }
             }
         }
 
