@@ -85,7 +85,7 @@ export function Game(props) {
             }).catch(e => console.log(e));
         });
 
-        hubConnection.on("setPlayerList", (_players) => {
+        hubConnection.on("updatePlayerList", (_players) => {
             // Super simple error check. Is this necessary?
             if (!_players || !_players.length) {
                 console.log(_players);

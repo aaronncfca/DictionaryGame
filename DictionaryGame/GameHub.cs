@@ -47,10 +47,10 @@ namespace DictionaryGame
             // into the round. Otherwise, they will join once the next round starts.
             if (game.Round != null && !player.IsPending)
             {
-                await SendUpdateRoundAsync(gameId, game.Round);
+                await SendRoundAsync(gameId, game.Round);
             }
 
-            await SendPlayerList(gameId, game.Players);
+            await SendPlayerListAsync(gameId, game.Players);
         }
 
         private Player GetCurrPlayer(Game game)
@@ -111,13 +111,13 @@ namespace DictionaryGame
 
             await Groups.RemoveFromGroupAsync(Context.ConnectionId, groupName);
 
-            await SendPlayerList(gameId, game.Players);
+            await SendPlayerListAsync(gameId, game.Players);
 
             // End the round if the player is "it." 
             if (game.Round != null && game.Round.RoundState != RoundState.Review
                 && game.Round.PlayerIt == player)
             {
-                await SendMessage(gameId, $"Oops! {player.Name} has disconnected, and they were it! " +
+                await SendMessageAsync(gameId, $"Oops! {player.Name} has disconnected, and they were it! " +
                     $"Cancelling this round and starting a new one.");
 
                 await StartNewRound(gameId, game);
@@ -127,7 +127,7 @@ namespace DictionaryGame
             else if ((game.Round == null || game.Round.RoundState == RoundState.Lobby)
                 && game.Host == player)
             {
-                await SendMessage(gameId, $"Oops! {player.Name} has disconnected, and they were the host! " +
+                await SendMessageAsync(gameId, $"Oops! {player.Name} has disconnected, and they were the host! " +
                     $"Please leave this game and try creating or joining a new one.");
 
                 // Remove this game from the list of active ones. Since we are in Lobby mode
@@ -161,8 +161,8 @@ namespace DictionaryGame
             game.Round.RoundState = RoundState.GetDict;
 
             // Some players may have been let in from pending status, so check that.
-            await SendPlayerList(gameId, game.Players);
-            await SendUpdateRoundAsync(gameId, game.Round);
+            await SendPlayerListAsync(gameId, game.Players);
+            await SendRoundAsync(gameId, game.Round);
         }
 
         public class SubmitDictDefArgs
@@ -185,7 +185,7 @@ namespace DictionaryGame
             game.Round.DictDef = args.Definition;
 
             game.Round.RoundState = RoundState.GetDefs;
-            await SendUpdateRoundAsync(gameId, game.Round);
+            await SendRoundAsync(gameId, game.Round);
 
         }
 
@@ -223,7 +223,7 @@ namespace DictionaryGame
             if(allAnswersSubmitted)
             {
                 game.Round.RoundState = RoundState.Vote;
-                await SendUpdateRoundAsync(gameId, game.Round);
+                await SendRoundAsync(gameId, game.Round);
             }
         }
 
@@ -347,9 +347,9 @@ namespace DictionaryGame
                 }
 
                 game.Round.RoundState = RoundState.Review;
-                await SendUpdateRoundAsync(gameId, game.Round);
+                await SendRoundAsync(gameId, game.Round);
 
-                await SendPlayerList(gameId, game.Players);
+                await SendPlayerListAsync(gameId, game.Players);
             }
         }
 
@@ -386,17 +386,17 @@ namespace DictionaryGame
 
         }
 
-        private async Task SendMessage(int gameId, string message)
+        private async Task SendMessageAsync(int gameId, string message)
         {
             await Clients.Group(gameId.ToString()).SendAsync("showMessage", message);
         }
 
-        private async Task SendPlayerList(int gameId, LinkedList<Player> players)
+        private async Task SendPlayerListAsync(int gameId, LinkedList<Player> players)
         {
-            await Clients.Group(gameId.ToString()).SendAsync("setPlayerList", players);
+            await Clients.Group(gameId.ToString()).SendAsync("updatePlayerList", players);
         }
 
-        private async Task SendUpdateRoundAsync(int gameId, Round round)
+        private async Task SendRoundAsync(int gameId, Round round)
         {
             await Clients.Group(gameId.ToString()).SendAsync("updateRound", round);
         }
