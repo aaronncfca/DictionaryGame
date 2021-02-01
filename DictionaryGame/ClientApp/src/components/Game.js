@@ -125,7 +125,7 @@ export function Game(props) {
 
             // Alert the app to the fact that we've disconnected. (Important if the user clicked
             // the back arrow.)
-            setUser({});
+            setUser({}); // TODO: I think this might throw an error?
         };
     }, []);
 

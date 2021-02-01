@@ -53,6 +53,16 @@ namespace DictionaryGame
             await SendPlayerListAsync(gameId, game.Players);
         }
 
+        private void GetCurrGame(out int gameId, out Game game)
+        {
+            gameId = (int)Context.Items["gameId"];
+
+            lock (Program.ActiveGames)
+            {
+                game = Program.ActiveGames[gameId];
+            }
+        }
+
         private Player GetCurrPlayer(Game game)
         {
             string userName = (string)Context.Items["username"];
@@ -87,15 +97,9 @@ namespace DictionaryGame
             if (!Context.Items.ContainsKey("gameId")) return;
 
 
-            int gameId = (int)Context.Items["gameId"];
+            GetCurrGame(out int gameId, out Game game);
             string groupName = gameId.ToString();
-            Game game;
-
-            lock (Program.ActiveGames)
-            {
-                game = Program.ActiveGames[gameId];
-            }
-
+            
             Player player = GetCurrPlayer(game);
 
             player.IsActive = false;
@@ -143,13 +147,7 @@ namespace DictionaryGame
 
         public async Task StartGame()
         {
-            int gameId = (int) Context.Items["gameId"];
-            Game game;
-
-            lock (Program.ActiveGames)
-            {
-                game = Program.ActiveGames[gameId];
-            }
+            GetCurrGame(out int gameId, out Game game);
 
             await StartNewRound(gameId, game);
         }
@@ -173,20 +171,15 @@ namespace DictionaryGame
 
         public async Task SubmitDictDef(SubmitDictDefArgs args)
         {
-            int gameId = (int)Context.Items["gameId"];
-            Game game;
-
-            lock (Program.ActiveGames)
-            {
-                game = Program.ActiveGames[gameId];
-            }
+            GetCurrGame(out int gameId, out Game game);
 
             game.Round.Word = args.Word;
             game.Round.DictDef = args.Definition;
 
+            // Advance to the next RoundState!
+
             game.Round.RoundState = RoundState.GetDefs;
             await SendRoundAsync(gameId, game.Round);
-
         }
 
         public class SubmitDefArgs
@@ -196,35 +189,34 @@ namespace DictionaryGame
 
         public async Task SubmitDef(SubmitDefArgs args)
         {
-            int gameId = (int)Context.Items["gameId"];
-            Game game;
-
-            lock (Program.ActiveGames)
-            {
-                game = Program.ActiveGames[gameId];
-            }
+            GetCurrGame(out int gameId, out Game game);
 
             Player player = GetCurrPlayer(game);
 
             game.Round.Responses.Add(player.Name, args.Definition);
 
-            bool allAnswersSubmitted = true;
+            await CheckDefsSubmitted(gameId, game, false);
+        }
 
-            // Check if all players have submitted a definition. If so, move to the next step!
-            // TODO: skip players automatically if they wait too long.
-            foreach(var p in game.ActivePlayers)
+        private async Task CheckDefsSubmitted(int gameId, Game game, bool timedOut)
+        {
+            // The Round may have already moved on due to timeout.
+            if (game.Round?.RoundState != RoundState.GetDefs) return;
+
+            if (!timedOut)
             {
-                if(p != game.Round.PlayerIt && !game.Round.Responses.ContainsKey(p.Name))
+                // Check if all players have submitted a definition, unless timed out.
+                foreach (var p in game.ActivePlayers)
                 {
-                    allAnswersSubmitted = false;
+                    if (p != game.Round.PlayerIt && !game.Round.Responses.ContainsKey(p.Name))
+                    {
+                        return;
+                    }
                 }
             }
 
-            if(allAnswersSubmitted)
-            {
-                game.Round.RoundState = RoundState.Vote;
-                await SendRoundAsync(gameId, game.Round);
-            }
+            game.Round.RoundState = RoundState.Vote;
+            await SendRoundAsync(gameId, game.Round);
         }
 
         public class SubmitVoteArgs
@@ -236,19 +228,12 @@ namespace DictionaryGame
 
         public async Task SubmitVote(SubmitVoteArgs args)
         {
-            int gameId = (int)Context.Items["gameId"];
-            Game game;
-
-            lock (Program.ActiveGames)
-            {
-                game = Program.ActiveGames[gameId];
-            }
-
+            GetCurrGame(out int gameId, out Game game);
             Player player = GetCurrPlayer(game);
 
             game.Round.Votes.Add(player.Name, args.UserName);
 
-            await CheckConcludeVoting(gameId, game);
+            await CheckConcludeVoting(gameId, game, false);
         }
 
         public class SubmitVoteItArgs
@@ -258,21 +243,15 @@ namespace DictionaryGame
 
         public async Task SubmitVoteIt(SubmitVoteItArgs args)
         {
-            int gameId = (int)Context.Items["gameId"];
-            Game game;
-
-            lock (Program.ActiveGames)
-            {
-                game = Program.ActiveGames[gameId];
-            }
+            GetCurrGame(out int gameId, out Game game);
 
             // TODO: assert that GetCurrPlayer(game) == game.Round.PlayerIt?
             // TODO: assert game.Round.AccurateDefs is empty.
-            
+
             game.Round.AccurateDefs.AddRange(args.AccurateDefs);
             game.Round.AccurateDefsSubmitted = true;
 
-            await CheckConcludeVoting(gameId, game);
+            await CheckConcludeVoting(gameId, game, false);
         }
 
         /// <summary>
@@ -280,110 +259,119 @@ namespace DictionaryGame
         /// and move on. Extracted as separate method since it should be run after
         /// SubmitVote and SubmitVoteIt.
         /// </summary>
-        private async Task CheckConcludeVoting(int gameId, Game game)
+        private async Task CheckConcludeVoting(int gameId, Game game, bool timedOut)
         {
-            bool allVotesSubmitted = game.Round.AccurateDefsSubmitted;
+            // The Round may have already moved on due to timeout.
+            if (game.Round?.RoundState != RoundState.Vote) return;
 
-            if (allVotesSubmitted)
+            if (!timedOut)
             {
-                // Check if all players have submitted a definition. If so, move to the next step!
-                // TODO: skip players automatically if they wait too long.
+                if (!game.Round.AccurateDefsSubmitted) return;
+
+                // Ensure players have submitted a definition before moving on (unless timed out
                 foreach (var p in game.ActivePlayers)
                 {
                     if (p != game.Round.PlayerIt && !game.Round.Votes.ContainsKey(p.Name))
                     {
-                        allVotesSubmitted = false;
+                        return;
                     }
                 }
             }
 
+            var round = game.Round;
 
-            if (allVotesSubmitted)
+            // If this remains false and round.AccurateDefs is empty, then PlayerIt
+            // is awarded Points.UnguessableWord.
+            bool someoneVotedAccurate = false;
+
+            //Calculate points earned.
+            foreach(var p in game.Players)
             {
-                var round = game.Round;
+                if (p == round.PlayerIt) continue; // PlayerIt doesn't earn these points.
+                if (p.IsPending) continue; // Nor pending players (obviously).
+                // However, we do include inactive players just in case they contributed something.
 
-                // If this remains false and round.AccurateDefs is empty, then PlayerIt
-                // is awarded Points.UnguessableWord.
-                bool someoneVotedAccurate = false;
-
-                //Calculate points earned.
-                foreach(var p in game.Players)
+                int points = 0;
+                if(round.AccurateDefs.Contains(p.Name))
                 {
-                    if (p == round.PlayerIt) continue; // PlayerIt doesn't earn these points.
-                    if (p.IsPending) continue; // Nor pending players (obviously).
-                    // However, we do include inactive players just in case they contributed something.
+                    points += Points.AccurateDef;
+                }
 
-                    int points = 0;
-                    if(round.AccurateDefs.Contains(p.Name))
+                if (round.Votes.ContainsKey(p.Name))
+                {
+                    var votedFor = round.Votes[p.Name];
+                    if (votedFor == round.PlayerIt.Name || round.AccurateDefs.Contains(votedFor))
                     {
-                        points += Points.AccurateDef;
-                    }
-
-                    if (round.Votes.ContainsKey(p.Name))
-                    {
-                        var votedFor = round.Votes[p.Name];
-                        if (votedFor == round.PlayerIt.Name || round.AccurateDefs.Contains(votedFor))
-                        {
-                            points += Points.AccurateVote;
-                            someoneVotedAccurate = true;
-                        }
-                    }
-
-                    int votedForMe = round.Votes.Count((v) => v.Value == p.Name);
-                    points += Points.VotedForMe * votedForMe;
-
-                    if(points > 0)
-                    {
-                        round.PointsAwarded.Add(p.Name, points);
-                        p.Points += points;
+                        points += Points.AccurateVote;
+                        someoneVotedAccurate = true;
                     }
                 }
 
-                // Award Points.UnguessableWord if noone guessed the correct definition.
-                if(round.AccurateDefs.Count == 0 && !someoneVotedAccurate)
+                int votedForMe = round.Votes.Count((v) => v.Value == p.Name);
+                points += Points.VotedForMe * votedForMe;
+
+                if(points > 0)
                 {
-                    round.PointsAwarded.Add(round.PlayerIt.Name, Points.UnguessableWord);
-                    round.PlayerIt.Points += Points.UnguessableWord;
+                    round.PointsAwarded.Add(p.Name, points);
+                    p.Points += points;
                 }
-
-                game.Round.RoundState = RoundState.Review;
-                await SendRoundAsync(gameId, game.Round);
-
-                await SendPlayerListAsync(gameId, game.Players);
             }
+
+            // Award Points.UnguessableWord if noone guessed the correct definition.
+            if(round.AccurateDefs.Count == 0 && !someoneVotedAccurate)
+            {
+                round.PointsAwarded.Add(round.PlayerIt.Name, Points.UnguessableWord);
+                round.PlayerIt.Points += Points.UnguessableWord;
+            }
+
+            // Advance to the next RoundState
+
+            game.Round.RoundState = RoundState.Review;
+            await SendRoundAsync(gameId, game.Round);
+
+            // Update player list, since scores may have changed.
+            await SendPlayerListAsync(gameId, game.Players);
         }
 
         public async Task SubmitDoneReviewing()
         {
-            int gameId = (int)Context.Items["gameId"];
-            Game game;
-
-            lock (Program.ActiveGames)
-            {
-                game = Program.ActiveGames[gameId];
-            }
-
+            GetCurrGame(out int gameId, out Game game);
             Player player = GetCurrPlayer(game);
 
             game.Round.DoneReviewing.Add(player);
 
-            bool allPlayersDone = true;
+            await CheckDoneReviewing(gameId, game, false);
+        }
 
-            // Check if all players have submitted a definition. If so, move to the next step!
-            // TODO: skip players automatically if they wait too long.
-            foreach (var p in game.ActivePlayers)
+        private async Task CheckDoneReviewing(int gameId, Game game, bool timedOut)
+        {
+            // The Round may have already moved on due to timeout.
+            if (game.Round?.RoundState != RoundState.Review) return;
+
+            if (!timedOut)
             {
-                if (!game.Round.DoneReviewing.Contains(p))
+                // Ensure all players are done reviewing, unless timed out.
+                foreach (var p in game.ActivePlayers)
                 {
-                    allPlayersDone = false;
+                    if (!game.Round.DoneReviewing.Contains(p))
+                    {
+                        return;
+                    }
                 }
             }
 
-            if (allPlayersDone)
-            {
-                await StartNewRound(gameId, game);
-            }
+            await StartNewRound(gameId, game);
+        }
 
+        public class StepTimeoutArgs
+        {
+            public RoundState RoundState { get; set; }
+        }
+
+        public async Task StepTimeout(StepTimeoutArgs args)
+        {
+
+            if(args.RoundState != )
         }
 
         private async Task SendMessageAsync(int gameId, string message)
@@ -400,6 +388,5 @@ namespace DictionaryGame
         {
             await Clients.Group(gameId.ToString()).SendAsync("updateRound", round);
         }
-
     }
 }
