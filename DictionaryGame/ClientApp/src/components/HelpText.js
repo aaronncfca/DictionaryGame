@@ -28,13 +28,13 @@ export function HelpText() {
             <h2>Rules:</h2>
             <ul>
                 <li><b>Be clean.</b> This app doesn't filter language, so don't write something that you wouldn't say out loud to the other players.</li>
-                <li><b>Be honest.</b> When you're <i>it</i>, you will have to choose which people got the definition right (this is app isn't smar enough to do it for you!). Be honest when you choose which answer(s) match the real definition.</li>
+                <li><b>Be honest.</b> When you're <i>it</i>, you will have to choose which people got the definition right (this app isn't smart enough to do it for you!). Be honest when you choose which answer(s) match the real definition.</li>
                 <li><b>Don't refresh or navigate away.</b> If you do so, your browser will lose touch with the game and you'll be knocked out.</li>
+                <li><i>If you do get disconnected from the game, you can try re-joining with the same username to get right back in play.</i></li>
             </ul>
             <h2>Known issues:</h2>
             <ul>
-                <li>If you refresh your browser or click away, you'll be disconnected from the game.</li>
-                <li>If someone tries to join the game while it's in process, it will let them in and might mess things up.</li>
+                <li>If you refresh your browser or go back, you'll be disconnected from the game. You may reconnect by joining the same game with the same username.</li>
                 <li>The game waits for all players to sumit their answers. There is no timer (yet) and no way (yet) to force it to skip someone. Which means that...</li>
                 <li>If someone leaves the game at the wrong time, it may freeze everything because the game is waiting for them.</li>
                 <li>There is no marked end to the game. You'll have to decide how long to play and then quit.</li>
