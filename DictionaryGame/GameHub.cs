@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using DictionaryGame.Models;
@@ -363,15 +364,37 @@ namespace DictionaryGame
             await StartNewRound(gameId, game);
         }
 
-        public class StepTimeoutArgs
+        public class SubmitStepTimeoutArgs
         {
             public RoundState RoundState { get; set; }
+            public int RoundNum { get; set; }
         }
 
-        public async Task StepTimeout(StepTimeoutArgs args)
+        public async Task SubmitStepTimeout(SubmitStepTimeoutArgs args)
         {
+            GetCurrGame(out int gameId, out Game game);
 
-            if(args.RoundState != )
+            // Ensure the round hasn't already advanced.
+            if(game.Round?.RoundNum != args.RoundNum || game.Round?.RoundState != args.RoundState)
+            {
+                return;
+            }
+
+            switch(game.Round.RoundState)
+            {
+                case RoundState.GetDefs:
+                    await CheckDefsSubmitted(gameId, game, true);
+                    break;
+                case RoundState.Vote:
+                    await CheckConcludeVoting(gameId, game, true);
+                    break;
+                case RoundState.Review:
+                    await CheckDoneReviewing(gameId, game, true);
+                    break;
+                default:
+                    Debug.Assert(false); // No other RoundStates have timeouts.
+                    break;
+            }
         }
 
         private async Task SendMessageAsync(int gameId, string message)

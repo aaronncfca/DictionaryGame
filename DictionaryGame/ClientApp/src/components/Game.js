@@ -1,4 +1,4 @@
-﻿import React, { useState, useContext } from 'react';
+﻿import React, { useEffect, useState, useContext } from 'react';
 import { UserContext } from "../UserContext.js";
 import { Alert, Container, Col, Row, Button } from "reactstrap";
 import { useEffectOnce } from "../hooks/UseEffectOnce.js";
@@ -9,9 +9,11 @@ import { GameStepVote } from "./GamePages/GameStepVote.js";
 import { GameStepReview } from "./GamePages/GameStepReview.js";
 import { UserPending } from "./GamePages/UserPending.js";
 import { HelpTextModal } from "./HelpTextModal.js";
+import { CountdownBubble } from './CountdownBubble.js';
 import * as signalR from "@microsoft/signalr";
 
 import css from "./Game.module.css";
+
 
 export function Game(props) {
     const gameId = props.match.params.id;
@@ -22,6 +24,7 @@ export function Game(props) {
     const [players, setPlayers] = useState([]);
     const [helpModalOpen, setHelpModalOpen] = useState(false);
     const [message, setMessage] = useState("");
+    const [countdown, setCountdown] = useState(0);
 
     // TODO: rename round, setRound
     const [round, setRound] = useState({ // See Round.cs
@@ -129,6 +132,25 @@ export function Game(props) {
         };
     }, []);
 
+    // Set the countdown for timeout when we go to a new roundState
+    // TODO: this will display the wrong time if the player has re-joined mid-round.
+    useEffect(() => {
+        switch (round.roundState) {
+            case 2:
+                setCountdown(60);
+                break;
+            case 3:
+                setCountdown(30);
+                break;
+            case 4:
+                setCountdown(30);
+                break;
+            default:
+                setCountdown(0);
+                break;
+        }
+    }, [round]);
+
 
     //TODO: get out of here to an error page? maybe use Error Boundaries?
     if (!user || user.gameId !== Number.parseInt(gameId) || !user.userName) {
@@ -166,6 +188,10 @@ export function Game(props) {
 
     function handleDoneReviewing() {
         hubConnection.invoke("submitDoneReviewing");
+    }
+
+    function handleCountdownComplete() {
+        hubConnection.invoke("submitStepTimeout", { roundState: round.roundState, roundNum: round.roundNum });
     }
 
     function renderGamePage() {
@@ -217,7 +243,7 @@ export function Game(props) {
                     }
                     <Container>
                         <Row>
-                            <Col md="4">
+                            <Col md="4" className="mb-2">
                                 {/*TODO: new component for each player.*/}
                                 <h3>Players</h3>
                                 <ul className={css.playerList}>
@@ -240,6 +266,7 @@ export function Game(props) {
                             </Col>
                         </Row>
                     </Container>
+                    <CountdownBubble onComplete={handleCountdownComplete} from={countdown} grace={2} roundState={round.roundState} />
                 </div>
             }
         </div>

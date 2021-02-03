@@ -30,7 +30,7 @@ export function GameStepGetDefs({ user, playerIt, ...props }) {
             <h2>The word is: <b>{props.word}</b>!</h2>
             {user.userName === playerIt ?
                 <div>
-                    <p>Waiting for players to submit a word and definition...</p>
+                    <p>Waiting for players to submit their definitions...</p>
                 </div>
                 : !submitted ?
                 <div>
