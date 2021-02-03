@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace DictionaryGame.Models
@@ -39,11 +40,10 @@ namespace DictionaryGame.Models
 
         public Player Host { get; set; }
 
-        // TODO: don't serialize attribute on this this probably?
-        // If client needs it, it should probably have it's own API call.
         /// <summary>
         /// List of all rounds. The current round will be History.Last.
         /// </summary>
+        [JsonIgnore]
         public LinkedList<Round> History { get; private set; }
 
         /// <summary>

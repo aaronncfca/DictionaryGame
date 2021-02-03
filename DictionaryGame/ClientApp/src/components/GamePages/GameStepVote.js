@@ -44,7 +44,6 @@ export function GameStepVote({ user, playerIt, responses, dictDef, ...props }) {
         if (user.userName === playerIt) {
             props.onSubmitVoteIt(accurateDefs);
         } else {
-            // TODO: enure a definition has been chosen?
             props.onSubmitVote(selectedDef);
         }
 
@@ -94,7 +93,7 @@ export function GameStepVote({ user, playerIt, responses, dictDef, ...props }) {
             }
             <div className="mt-4"></div>
             {!submitted ?
-                <Button color="primary" block onClick={handleSubmitClicked}>Submit!</Button>
+                <Button color="primary" block disabled={!selectedDef} onClick={handleSubmitClicked}>Submit!</Button>
                 :
                 <p>Waiting for other players to respond...</p>
             }

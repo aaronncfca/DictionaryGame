@@ -246,8 +246,7 @@ namespace DictionaryGame
         {
             GetCurrGame(out int gameId, out Game game);
 
-            // TODO: assert that GetCurrPlayer(game) == game.Round.PlayerIt?
-            // TODO: assert game.Round.AccurateDefs is empty.
+            Debug.Assert(game.Round.AccurateDefs.Count == 0);
 
             game.Round.AccurateDefs.AddRange(args.AccurateDefs);
             game.Round.AccurateDefsSubmitted = true;

@@ -1,4 +1,4 @@
-﻿import React, { useEffect } from 'react';
+﻿import { useEffect } from 'react';
 
 /**
  * Calls useEffect with empty brackets for the second parameter to

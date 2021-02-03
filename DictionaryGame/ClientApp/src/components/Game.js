@@ -26,7 +26,6 @@ export function Game(props) {
     const [message, setMessage] = useState("");
     const [countdown, setCountdown] = useState(0);
 
-    // TODO: rename round, setRound
     const [round, setRound] = useState({ // See Round.cs
         roundState: 0,  // 0 = not started; awaiting players
                         // 1 = Acquiring word and dictionary def
@@ -128,7 +127,7 @@ export function Game(props) {
 
             // Alert the app to the fact that we've disconnected. (Important if the user clicked
             // the back arrow.)
-            setUser({}); // TODO: I think this might throw an error?
+            setUser({});
         };
     }, []);
 

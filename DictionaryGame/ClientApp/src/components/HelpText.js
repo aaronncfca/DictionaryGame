@@ -17,7 +17,7 @@ export function HelpText() {
             </ul>
 
             <h2>Points:</h2>
-            <p>Here's how you win the game! (pst, the game never ends, you all have to decide when you're done!). You get:</p>
+            <p>Here's how you win the game! (pst, the game never ends, you all have to decide when you're done!) You get:</p>
             <ul>
                 <li><b>2 points</b> for submitting an accurate definition (the person who's <i>it</i> will determine)</li>
                 <li><b>1 point</b> for every person who votes for your answer.</li>
@@ -32,11 +32,9 @@ export function HelpText() {
                 <li><b>Don't refresh or navigate away.</b> If you do so, your browser will lose touch with the game and you'll be knocked out.</li>
                 <li><i>If you do get disconnected from the game, you can try re-joining with the same username to get right back in play.</i></li>
             </ul>
-            <h2>Known issues:</h2>
+            <h2>FYI:</h2>
             <ul>
                 <li>If you refresh your browser or go back, you'll be disconnected from the game. You may reconnect by joining the same game with the same username.</li>
-                <li>The game waits for all players to sumit their answers. There is no timer (yet) and no way (yet) to force it to skip someone. Which means that...</li>
-                <li>If someone leaves the game at the wrong time, it may freeze everything because the game is waiting for them.</li>
                 <li>There is no marked end to the game. You'll have to decide how long to play and then quit.</li>
             </ul>
         </div>

@@ -2,8 +2,10 @@
 import { Button } from "reactstrap";
 
 
-export function GameStepLobby(props) {
-    const user = props.user;
+export function GameStepLobby({ user, onStartGame }) {
+
+    // TODO: allow host to configure whether/how long to wait before timeout for GetDefs;
+    // how many points to play to.
 
     return (
         <div>
@@ -16,7 +18,7 @@ export function GameStepLobby(props) {
                         <li>Game name: <b>{user.gameName}</b></li>
                         <li>Game password: <b>{user.gamePassword}</b> </li>
                     </ul>
-                    <Button color="primary" block onClick={props.onStartGame}>Start game!</Button>
+                    <Button color="primary" block onClick={onStartGame}>Start game!</Button>
                 </div>
                 :
                 <div>
