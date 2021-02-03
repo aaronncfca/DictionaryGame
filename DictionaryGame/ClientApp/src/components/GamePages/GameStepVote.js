@@ -93,7 +93,9 @@ export function GameStepVote({ user, playerIt, responses, dictDef, ...props }) {
             }
             <div className="mt-4"></div>
             {!submitted ?
-                <Button color="primary" block disabled={!selectedDef} onClick={handleSubmitClicked}>Submit!</Button>
+                <Button color="primary" block
+                    disabled={user.userName !== playerIt && !selectedDef}
+                    onClick={handleSubmitClicked}>Submit!</Button>
                 :
                 <p>Waiting for other players to respond...</p>
             }
