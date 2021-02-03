@@ -1,19 +1,32 @@
-import React, { Component } from 'react';
+import React, { useState } from 'react';
 import { HelpText } from "./HelpText.js";
+import { Collapse, Button, Container } from 'reactstrap';
+import { Link } from 'react-router-dom';
 
-// TODO: move content to a "Rules" component that can be reused and shown in-game.
+export function Home() {
+    const [helpOpen, setHelpOpen] = useState(false);
 
-export class Home extends Component {
-    static displayName = Home.name;
+    return (
+        <div>
+            <h1>The Dictionary Game</h1>
+            <p>Welcome to the dictionary game! This is an implementation of the classic guess-the-word game Fictionary.
+                    If you've ever played Balderdash (copyright Mattel Games), you'll recognize how this works!</p>
+            <p>This is a great game for videoconference parties or around the table.</p>
 
-    render() {
-        return (
-            <div>
-                <h1>The Dictionary Game</h1>
-                <p>Welcome to the dictionary game! This is a classic guess-the-word game. Similar copyrighted games that implement the same concept include Balderdash and Fibber.</p>
-                <p>This is a great game for videoconference parties or around the table.</p>
+            <Container>
+                <Link to="/Create-Game">
+                    <Button color="primary" className="m-2">Create a New Game</Button>
+                </Link>
+
+                <Link to="/Join-Game">
+                    <Button className="m-2">Join a Game</Button>
+                </Link>
+            </Container>
+
+            <Button color="info" className="my-4" onClick={() => { setHelpOpen(!helpOpen) }} >How do I play?</Button>
+            <Collapse isOpen={helpOpen}>
                 <HelpText />
-            </div>
-        );
-    }
+            </Collapse>
+        </div>
+    );
 }
