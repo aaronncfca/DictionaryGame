@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { Route } from 'react-router';
-import { Layout } from './components/Layout';
-import { Home } from './components/Home';
-import { Game } from './components/Game'
-import { CreateGame } from './components/CreateGame'
-import { JoinGame } from './components/JoinGame'
+import { Layout } from './components/home/Layout';
+import { Home } from './components/home/Home';
+import { Game } from './components/game/Game'
+import { CreateGame } from './components/home/CreateGame'
+import { JoinGame } from './components/home/JoinGame'
 import { UserContext } from './UserContext.js'
 
 import './custom.css'

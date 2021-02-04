@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { HelpText } from "./HelpText.js";
+import { HelpText } from "../shared/HelpText.js";
 import { Collapse, Button, Container } from 'reactstrap';
 import { Link } from 'react-router-dom';
 

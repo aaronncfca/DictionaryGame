@@ -1,10 +1,10 @@
-import React, { useState, useContext } from 'react';
+﻿import React, { useState, useContext } from 'react';
 import { useHistory } from 'react-router-dom'
-import { UserContext } from '../UserContext.js'
+import { UserContext } from "../../UserContext.js"
 import { Button, Form, FormGroup, Label, Input, FormFeedback } from "reactstrap";
 
 
-export function CreateGame(props) {
+export function JoinGame(props) {
     const [gameName, setGameName] = useState('');
     const [usrname, setUsrname] = useState('');
     const [password, setPassword] = useState('');
@@ -12,7 +12,6 @@ export function CreateGame(props) {
     const history = useHistory();
 
     const { setUser } = useContext(UserContext);
-
 
     async function handleFormSubmitted(event) {
         const form = event.target;
@@ -31,7 +30,7 @@ export function CreateGame(props) {
         const body = { Name: gameName, Username: usrname, Password: password };
 
         try {
-            const response = await fetch("GameApi/NewGame", {
+            const response = await fetch("GameApi/JoinGame", {
                 method: "post",
                 headers: { "Content-type": "application/json" },
                 body: JSON.stringify(body)
@@ -40,7 +39,7 @@ export function CreateGame(props) {
             const text = await response.text();
 
             if (!response.ok) {
-                alert("Error creating game: " + text);
+                alert("Error joining game: " + text);
             } else {
                 const gameId = Number.parseInt(text);
 
@@ -48,9 +47,7 @@ export function CreateGame(props) {
                 setUser({
                     gameId: gameId,
                     userName: usrname,
-                    gameName: gameName,
-                    gamePassword: password,
-                    isHost: true
+                    isHost: false
                 });
 
                 // Go to the game window!
@@ -65,7 +62,7 @@ export function CreateGame(props) {
 
     return (
         <div>
-            <h1>Create Game</h1>
+            <h1>Join Game</h1>
             <Form noValidate className={validated ? "was-validated" : ""} onSubmit={handleFormSubmitted}>
                 <FormGroup>
                     <Label for="cg-usrname">
@@ -79,7 +76,7 @@ export function CreateGame(props) {
                 </FormGroup>
                 <FormGroup>
                     <Label for="cg-password">Pasword for this game:</Label>
-                    <Input className="form-control" type="text" id="cg-password" name="password" value={password} pattern=".{4,49}"
+                    <Input type="text" id="cg-password" name="password" value={password} pattern=".{4,49}"
                         onChange={(e) => setPassword(e.target.value)} required />
                     <FormFeedback>
                         Password must be 4 to 49 characters.
@@ -87,7 +84,7 @@ export function CreateGame(props) {
                 </FormGroup>
                 <FormGroup>
                     <Label for="cg-usrname">
-                        Your personal user name:
+                        Your user name:
                     </Label>
                     <Input className="form-control" type="text" id="cg-usrname" name="usrname" value={usrname} pattern="[a-zA-Z0-9]{4,49}"
                         onChange={(e) => setUsrname(e.target.value)} required />
@@ -95,7 +92,7 @@ export function CreateGame(props) {
                         Username must be 4 to 49 characters, letters and numbers only.
                     </FormFeedback>
                 </FormGroup>
-                <Button color="primary">Create Game</Button>
+                <Button color="primary">Join Game</Button>
             </Form>
         </div>
     );
