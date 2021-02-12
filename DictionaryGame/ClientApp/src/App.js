@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
-import { Route } from 'react-router';
-import { Layout } from './components/home/Layout';
-import { Home } from './components/home/Home';
+import React, { useState } from 'react'
+import { Route } from 'react-router'
+import { Layout } from './components/home/Layout'
+import { Home } from './components/home/Home'
 import { Game } from './components/game/Game'
 import { CreateGame } from './components/home/CreateGame'
 import { JoinGame } from './components/home/JoinGame'
+import { About } from './components/home/About.js'
 import { UserContext } from './UserContext.js'
 
 import './custom.css'
@@ -20,6 +21,7 @@ export default function App(props) {
                 <Route exact path='/' component={Home} />
                 <Route path='/create-game' component={CreateGame} />
                 <Route path='/join-game' component={JoinGame} />
+                <Route path='/about' component={About} />
                 <Route path='/game/:id' component={Game} />
             </Layout>
         </UserContext.Provider>
