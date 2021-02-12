@@ -1,12 +1,17 @@
 # Dictionary Game Readme
 
-## About the game
+## About the Game
 
 The Dictionary Game is an implementation of the classic guess-the-word game Fictionary. One player
 chooses a word and submits its real definition, then everyone else guesses what the word means.
 
 I began writing this game in 2020 during the COVID-19 pandemic as a party game for videoconferenced
 get-togethers.
+
+## Try It Out!
+
+The game is currently hosted at https://dictgame.azurewebsites.net/. Get some friends together and
+give it a try!
 
 ## Client Application
 
