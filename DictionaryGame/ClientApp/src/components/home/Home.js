@@ -3,11 +3,15 @@ import { HelpText } from "../shared/HelpText.js";
 import { Collapse, Button, Container } from 'reactstrap';
 import { Link } from 'react-router-dom';
 
+import css from './Home.module.css'
+
 export function Home() {
     const [helpOpen, setHelpOpen] = useState(false);
 
     return (
         <div>
+            <img src="/assets/dictgame-icon-color.svg" className={"d-none d-sm-block " + css.dicticon} />
+
             <h1>The Dictionary Game</h1>
             <p>Welcome to the dictionary game! This is an implementation of the classic guess-the-word game Fictionary.
                     If you've ever played Balderdash (copyright Mattel Games), you'll recognize how this works!</p>
