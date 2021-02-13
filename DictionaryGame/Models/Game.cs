@@ -59,18 +59,26 @@ namespace DictionaryGame.Models
                 p.IsPending = false;
             }
 
-            if (_PlayerIt == null || _PlayerIt.Next == null)
-            {
-                // This should never be called if there are no players!
-                if (Players.Count == 0) throw new InvalidOperationException();
+            var lastPlayerIt = _PlayerIt;
 
-                // Wrap around to first player.
-                _PlayerIt = Players.First;
-            }
-            else
+            do
             {
-                _PlayerIt = _PlayerIt.Next;
-            }
+                if (_PlayerIt == null || _PlayerIt.Next == null)
+                {
+                    // This should never be called if there are no players!
+                    if (Players.Count == 0) throw new InvalidOperationException();
+
+                    // Wrap around to first player.
+                    _PlayerIt = Players.First;
+                }
+                else
+                {
+                    _PlayerIt = _PlayerIt.Next;
+                }
+            } while (!_PlayerIt.Value.IsActive && _PlayerIt != lastPlayerIt);
+            // Skip this player if they aren't active; but stop looking if it loops
+            // all the way around (resulting in the same player being _it_, which is ok
+            // if there are no other active users!
 
             int roundNum = (Round == null) ? 1 : Round.RoundNum + 1;
 
