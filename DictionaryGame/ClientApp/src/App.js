@@ -8,8 +8,6 @@ import { JoinGame } from './components/home/JoinGame'
 import { About } from './components/home/About.js'
 import { UserContext } from './UserContext.js'
 
-import './custom.css'
-
 export default function App(props) {
     // Holds the user information while a game is active.
     // Should be set to contain gameId, userName, and isHost.
