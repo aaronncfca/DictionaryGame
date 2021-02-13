@@ -85,5 +85,11 @@ namespace DictionaryGame.Models
             Round = new Round(_PlayerIt.Value, roundNum);
             History.AddLast(Round);
         }
+
+        /// <summary>
+        /// Used by GameHub.SubmitStepTimeout() to ensure multiple threads do not
+        /// simultaneously process a RoundState timeout.
+        /// </summary>
+        public bool isTimeoutProcessing = false;
     }
 }

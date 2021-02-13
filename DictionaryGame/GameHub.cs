@@ -381,27 +381,37 @@ namespace DictionaryGame
         {
             GetCurrGame(out int gameId, out Game game);
 
-            // Ensure the round hasn't already advanced.
-            if(game.Round?.RoundNum != args.RoundNum || game.Round?.RoundState != args.RoundState)
+            // Ensure there isn't another thread already processing SubmitStepTimeout().
+            // (Since all clients run a timer and all of them call this on timeout, this
+            // would not be an unlikely scenario.)
+            lock (game)
             {
-                return;
+                if (game.isTimeoutProcessing) return;
+
+                game.isTimeoutProcessing = true;
             }
 
-            switch(game.Round.RoundState)
+            // Ensure the round hasn't already advanced.
+            if (game.Round?.RoundNum == args.RoundNum && game.Round?.RoundState == args.RoundState)
             {
-                case RoundState.GetDefs:
-                    await CheckDefsSubmitted(gameId, game, true);
-                    break;
-                case RoundState.Vote:
-                    await CheckConcludeVoting(gameId, game, true);
-                    break;
-                case RoundState.Review:
-                    await CheckDoneReviewing(gameId, game, true);
-                    break;
-                default:
-                    Debug.Assert(false); // No other RoundStates have timeouts.
-                    break;
+                switch (game.Round.RoundState)
+                {
+                    case RoundState.GetDefs:
+                        await CheckDefsSubmitted(gameId, game, true);
+                        break;
+                    case RoundState.Vote:
+                        await CheckConcludeVoting(gameId, game, true);
+                        break;
+                    case RoundState.Review:
+                        await CheckDoneReviewing(gameId, game, true);
+                        break;
+                    default:
+                        Debug.Assert(false); // No other RoundStates have timeouts.
+                        break;
+                }
             }
+
+            game.isTimeoutProcessing = false;
         }
 
         private async Task SendMessageAsync(int gameId, string message)

@@ -101,10 +101,6 @@ Once all clients in a given game have disconnected, that game is deleted.
   * There is only minimal thread-safety protection to ensure that Program.ActiveGames is not
     corrupted. A number of scenarios have not been tested which may produce undefined results;
     such as if a user submits their answer while the server is processing a timeout request.
-  * Timeouts are implemented on the client side, meaning multiple clients may simultaneously
-    submit GameHub.SubmitTimeout(). It would make more sense for the server to implement the
-    timeout, but this would require significant restructuring because timeout functions don't play
-    well with SignalR hubs (since they are disposed and re-instantiated for every request).
 
 
 ## Contributing
