@@ -105,12 +105,13 @@ namespace DictionaryGame
 
             player.IsActive = false;
 
-            // Delete the game if no players remain active.
+            // Delete the game and get out of here if no players remain active.
             lock(Program.ActiveGames)
             {
                 if(game.ActivePlayers.Count() == 0)
                 {
                     Program.ActiveGames.Remove(gameId);
+                    return;
                 }
             }
 
@@ -128,7 +129,7 @@ namespace DictionaryGame
                 await StartNewRound(gameId, game);
             }
 
-            // Let other players know if the host is gone.
+            // If we're in lobby mode, let other players know if the host is gone.
             else if ((game.Round == null || game.Round.RoundState == RoundState.Lobby)
                 && game.Host == player)
             {
@@ -143,6 +144,13 @@ namespace DictionaryGame
                     Program.ActiveGames.Remove(gameId);
                 }
             }
+
+            // If the user left in the middle of reviewing, mark them as done reviewing.
+            else if(game.Round?.RoundState == RoundState.Review)
+            {
+                await SubmitDoneReviewing();
+            }
+
         }
 
 
