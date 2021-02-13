@@ -5,3 +5,12 @@
 .votes {
     color: #383e48
 }
+
+.answerTitle {
+    margin-left: -15px;
+}
+
+.answer {
+    font-style: italic;
+    padding-bottom: 1em;
+}

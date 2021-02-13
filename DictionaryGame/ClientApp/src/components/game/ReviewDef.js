@@ -8,10 +8,8 @@ export function ReviewDef({ response, userName, accurate, votedFor, realDef}) {
         <Container>
             <Row>
                 <Col sm="8">
-                    <p><b>{userName}</b> put:</p>
-                    {!realDef &&
-                        <p><q>{response}</q></p>
-                    }
+                    <p className={css.answerTitle}><b>{userName}</b>{!realDef && " put"}:</p>
+                    <p className={css.answer}><q>{response}</q></p>
                 </Col>
                 <Col sm="4">
                     {accurate &&

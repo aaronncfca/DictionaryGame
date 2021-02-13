@@ -12,8 +12,6 @@ import { HelpTextModal } from "./HelpTextModal";
 import { CountdownBubble } from "./CountdownBubble";
 import * as signalR from "@microsoft/signalr";
 
-import css from "./Game.module.css";
-
 
 export function Game(props) {
     const gameId = props.match.params.id;
@@ -238,21 +236,21 @@ export function Game(props) {
                 <div>
                     <h4>Game: {gameName}</h4>
                     {round.roundNum &&
-                        <h5>Round {round.roundNum}</h5>
+                        <h5 className="text-info">Round {round.roundNum}</h5>
                     }
                     <Container>
                         <Row>
                             <Col md="4" className="mb-2">
-                                {/*TODO: new component for each player.*/}
+                                {/*TODO: might be nice to have a PlayerListing component to simplify this.*/}
                                 <h3>Players</h3>
-                                <ul className={css.playerList}>
+                                <ul>
                                     {players.map((player) => (
                                         (!player.isActive || player.isPending) ?
-                                            <li key={player.name} className="text-muted">{player.name}</li>
+                                            <li key={player.name} className="text-muted"><i>{player.name}</i></li>
                                             :
                                             <li key={player.name}
-                                                className={user.userName === player.name ? css.thisPlayer : ""}>
-                                                {player.name} <span className={css.points}>({player.points} points)</span>
+                                                className={user.userName === player.name ? "text-primary" : ""}>
+                                                {player.name} <span className="text-muted">({player.points} points)</span>
                                             </li>
                                     ))}
                                 </ul>

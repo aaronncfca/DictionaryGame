@@ -66,7 +66,7 @@ export function GameStepVote({ user, playerIt, responses, dictDef, ...props }) {
 
     return (
         <div>
-            <h2>The word is: <b>{props.word}</b>!</h2>
+            <h2>The word is: <b className="text-primary">{props.word}</b>!</h2>
             {user.userName === playerIt ?
                 <div>
                     <p>The dictionary definition is: <q>{dictDef}</q></p>
