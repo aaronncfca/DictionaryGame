@@ -1,5 +1,5 @@
-﻿import React from 'react';
-import { HelpText } from "../shared/HelpText.js";
+﻿import React from "react";
+import { HelpText } from "../shared/HelpText";
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from "reactstrap";
 
 export function HelpTextModal({ modalOpen, setModalOpen }) {

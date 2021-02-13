@@ -1,5 +1,5 @@
-﻿import React, { useState } from 'react';
-import { ReviewDef } from "./ReviewDef.js";
+﻿import React, { useState } from "react";
+import { ReviewDef } from "./ReviewDef";
 import { Button } from "reactstrap";
 
 

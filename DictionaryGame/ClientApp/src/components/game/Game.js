@@ -1,15 +1,15 @@
-﻿import React, { useEffect, useState, useContext } from 'react';
-import { UserContext } from "../../UserContext.js";
+﻿import React, { useEffect, useState, useContext } from "react";
+import { UserContext } from "../../UserContext";
 import { Alert, Container, Col, Row, Button } from "reactstrap";
-import { useEffectOnce } from "../../hooks/UseEffectOnce.js";
-import { GameStepLobby } from "./GameStepLobby.js";
-import { GameStepGetDict } from "./GameStepGetDict.js";
-import { GameStepGetDefs } from "./GameStepGetDefs.js";
-import { GameStepVote } from "./GameStepVote.js";
-import { GameStepReview } from "./GameStepReview.js";
-import { UserPending } from "./UserPending.js";
-import { HelpTextModal } from "./HelpTextModal.js";
-import { CountdownBubble } from './CountdownBubble.js';
+import { useEffectOnce } from "../../hooks/UseEffectOnce";
+import { GameStepLobby } from "./GameStepLobby";
+import { GameStepGetDict } from "./GameStepGetDict";
+import { GameStepGetDefs } from "./GameStepGetDefs";
+import { GameStepVote } from "./GameStepVote";
+import { GameStepReview } from "./GameStepReview";
+import { UserPending } from "./UserPending";
+import { HelpTextModal } from "./HelpTextModal";
+import { CountdownBubble } from "./CountdownBubble";
 import * as signalR from "@microsoft/signalr";
 
 import css from "./Game.module.css";

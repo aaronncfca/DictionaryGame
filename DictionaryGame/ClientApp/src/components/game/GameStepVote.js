@@ -1,5 +1,5 @@
-﻿import React, { useState } from 'react';
-import { VoteOption } from "./VoteOption.js";
+﻿import React, { useState } from "react";
+import { VoteOption } from "./VoteOption";
 import { Button } from "reactstrap";
 
 
