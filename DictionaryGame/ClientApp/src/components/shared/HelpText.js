@@ -11,9 +11,10 @@ export function HelpText() {
             <h2>How to play:</h2>
             <ul>
                 <li>One person will be <i>it</i> each round. That person must find an obscure word in the dictionary and write its definition down.</li>
-                <li>Then everyone will see that word and submit a definition for what they think it might mean (or whatever they want to say!).</li>
+                <li>Then everyone will see that word and submit a definition for what they think it might mean (and to bluff the other players!).</li>
                 <li>Once everyone submits their answers, they will then see all the answers, with the real definition mixed in, and guess which is correct.</li>
                 <li>Meanwhile, the player who is <i>it</i> will review all the answers and mark any accurate definitions.</li>
+                <li>You'll have to think fast! If you don't click "submit" before the timer runs out, your answer will not be recorded!</li>
             </ul>
 
             <h2>Points:</h2>

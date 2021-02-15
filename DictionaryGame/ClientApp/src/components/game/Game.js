@@ -131,16 +131,18 @@ export function Game(props) {
 
     // Set the countdown for timeout when we go to a new roundState
     // TODO: this will display the wrong time if the player has re-joined mid-round.
+    // TODO: These values should be declared in a better area.
+    // TODO: allow host to modify these values below the round.
     useEffect(() => {
         switch (round.roundState) {
-            case 2:
-                setCountdown(60);
+            case 2: // GetDefs
+                setCountdown(90);
                 break;
-            case 3:
-                setCountdown(30);
+            case 3: // Vote
+                setCountdown(45);
                 break;
-            case 4:
-                setCountdown(30);
+            case 4: // Review
+                setCountdown(45);
                 break;
             default:
                 setCountdown(0);
