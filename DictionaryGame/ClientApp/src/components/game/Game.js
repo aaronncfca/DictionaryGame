@@ -265,7 +265,7 @@ export function Game(props) {
                             </Col>
                         </Row>
                     </Container>
-                    <CountdownBubble onComplete={handleCountdownComplete} from={countdown} grace={2} roundState={round.roundState} />
+                    <CountdownBubble onComplete={handleCountdownComplete} from={countdown} grace={2} key={round.roundState} />
                 </div>
             }
         </div>

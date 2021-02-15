@@ -3,13 +3,15 @@ import Countdown from "react-countdown";
 
 import css from "./CountdownBubble.module.css"
 
-export function CountdownBubble({ from, onComplete, grace, roundState }) {
+export function CountdownBubble({ from, onComplete, grace, key }) {
     const [visible, setVisible] = useState(from !== 0);
+    const [until, setUntil] = useState(Date.now() + from * 1000);
 
-    // Reset visibility when the roundState changes.
+    // Recalculate time until timeout and reset visibility when the key changes
     useEffect(() => {
+        setUntil(Date.now() + from * 1000);
         setVisible(from !== 0);
-    }, [roundState, from]);
+    }, [key, from]);
 
     function handleComplete() {
         if (!grace) grace = 0;
@@ -26,8 +28,8 @@ export function CountdownBubble({ from, onComplete, grace, roundState }) {
             <div className={css.container}>
                 <div className={css.textContainer}>
                     <Countdown
-                        key={roundState}
-                        date={Date.now() + from * 1000}
+                        key={until}
+                        date={until}
                         renderer={({ minutes, seconds }) => minutes * 60 + seconds}
                         onComplete={handleComplete} />
                 </div>
