@@ -65,17 +65,17 @@ export function JoinGame(props) {
             <h1>Join Game</h1>
             <Form noValidate className={validated ? "was-validated" : ""} onSubmit={handleFormSubmitted}>
                 <FormGroup>
-                    <Label for="cg-usrname">
+                    <Label for="cg-gamename">
                         The game name:
                     </Label>
-                    <Input type="text" id="cg-usrname" name="usrname" value={gameName} pattern="[a-zA-Z0-9]{4,49}"
+                    <Input type="text" id="cg-gamename" name="gamename" value={gameName} pattern="[a-zA-Z0-9 ]{4,49}"
                         onChange={(e) => setGameName(e.target.value)} required />
                     <FormFeedback>
                         Username must be 4 to 49 characters, letters and numbers only.
                     </FormFeedback>
                 </FormGroup>
                 <FormGroup>
-                    <Label for="cg-password">Pasword for this game:</Label>
+                    <Label for="cg-password">Password for this game:</Label>
                     <Input type="text" id="cg-password" name="password" value={password} pattern=".{4,49}"
                         onChange={(e) => setPassword(e.target.value)} required />
                     <FormFeedback>
@@ -86,7 +86,7 @@ export function JoinGame(props) {
                     <Label for="cg-usrname">
                         Your user name:
                     </Label>
-                    <Input className="form-control" type="text" id="cg-usrname" name="usrname" value={usrname} pattern="[a-zA-Z0-9]{4,49}"
+                    <Input className="form-control" type="text" id="cg-usrname" name="usrname" value={usrname} pattern="[a-zA-Z0-9 ]{4,49}"
                         onChange={(e) => setUsrname(e.target.value)} required />
                     <FormFeedback>
                         Username must be 4 to 49 characters, letters and numbers only.
